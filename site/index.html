@@ -98,7 +98,7 @@ details.adv[open] summary{margin-bottom:10px}
 .timer{font-family:var(--fh); color:var(--muted); font-variant-numeric:tabular-nums}
 .status-dot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--dim); margin-right:6px}
 .status-dot.on{background:var(--ok); box-shadow:0 0 8px var(--ok)}
-.main{display:grid; grid-template-columns:minmax(0,1fr) 380px; min-height:0}
+.main{display:grid; grid-template-columns:minmax(0,1fr) var(--sideW,380px); min-height:0}
 @media (max-width:1000px){ .main{grid-template-columns:1fr; grid-template-rows:auto auto} #game{height:auto; min-height:100vh} }
 .table{padding:12px; overflow:auto; min-height:0}
 .tiles{display:grid; gap:12px; grid-template-columns:repeat(var(--cols,2),minmax(0,1fr)); grid-auto-rows:auto}
@@ -157,7 +157,7 @@ details.adv[open] summary{margin-bottom:10px}
 .hint{color:var(--dim); font-size:.85rem; font-style:italic; margin:10px 2px 0}
 
 /* painel lateral */
-.side{border-left:1px solid var(--line); display:grid; grid-template-rows:auto 1fr; min-height:0; background:rgba(12,6,8,.6)}
+.side{position:relative; border-left:1px solid var(--line); display:grid; grid-template-rows:auto 1fr; min-height:0; background:rgba(12,6,8,.6)}
 .tabs{display:flex; border-bottom:1px solid var(--line)}
 .tabs button{flex:1; background:none; border:none; padding:12px 6px; font-family:var(--fh); font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); border-bottom:2px solid transparent; position:relative}
 .tabs button.on{color:var(--gold2); border-bottom-color:var(--blood2)}
@@ -246,10 +246,41 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
 .toast{background:#1d0e12; border:1px solid var(--line2); padding:10px 16px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.6); animation:tin .2s ease-out; max-width:min(560px,92vw); pointer-events:auto}
 .toast.err{border-color:var(--blood2)}
 @keyframes tin{from{opacity:0; transform:translateY(8px)}}
-.reveal{position:fixed; right:400px; top:70px; z-index:40; width:220px; animation:tin .25s ease-out; pointer-events:none}
+.reveal{position:fixed; right:calc(var(--sideW,380px) + 20px); top:70px; z-index:40; width:220px; animation:tin .25s ease-out; pointer-events:none}
 .reveal img{width:100%; border-radius:12px; box-shadow:0 0 0 2px var(--blood2), 0 20px 50px rgba(0,0,0,.8)}
 .reveal div{font-family:var(--fh); text-align:center; font-size:.8rem; margin-top:6px; text-shadow:0 2px 6px #000}
 @media (max-width:1000px){.reveal{right:16px}}
+/* áudio */
+.meterbox{display:flex; align-items:center; gap:10px}
+.meter{height:8px; background:#0e0709; border:1px solid var(--line); border-radius:4px; overflow:hidden; flex:1}
+.meter i{display:block; height:100%; width:0; background:var(--ok); transition:width .08s}
+.apanel{position:fixed; top:56px; right:14px; z-index:45; width:min(370px,92vw); padding:16px}
+.linkmenu{position:fixed; z-index:46; padding:10px; display:flex; flex-direction:column; gap:6px; min-width:230px}
+.unlock{position:fixed; left:50%; top:70px; transform:translateX(-50%); z-index:60; box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.chk{display:flex; gap:8px; align-items:center; font-size:.95rem; cursor:pointer}
+/* observadores */
+body.obs .camOnly, body.obs [data-tab="deck"], body.obs #btnNextPhase, body.obs #btnNextTurn, body.obs #hostCtl, body.obs #guestNote,
+body.obs .ctr button, body.obs [data-act="edge"], body.obs [data-act="revive"]{display:none!important}
+body.obs .ctr b, body.obs .phases button, body.obs .seats button{pointer-events:none}
+.obsbar{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 10px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:rgba(23,13,16,.85)}
+.obsbar .ttl{font-family:var(--fh); font-size:.8rem; letter-spacing:.08em; color:var(--gold2); margin-right:4px; white-space:nowrap}
+.opill{display:inline-flex; align-items:center; gap:4px; padding:2px 3px 2px 10px; border:1px solid var(--line2); border-radius:999px; background:#0e0709; font-size:.9rem; transition:box-shadow .15s, border-color .15s}
+.opill .mi{font-size:.8rem}
+.opill.talk{border-color:var(--ok); box-shadow:0 0 10px rgba(111,174,122,.6)}
+.opill.hm{border-color:var(--blood2)}
+.opill.off{opacity:.55}
+.opill button{background:none; border:none; padding:3px 7px; border-radius:999px; font-size:.95rem; line-height:1; color:var(--bone)}
+.opill button:hover{background:#2a1419}
+.obsbar .all{margin-left:auto; display:flex; gap:6px}
+/* painel lateral recolhível e com largura ajustável */
+body.side-closed .main{grid-template-columns:minmax(0,1fr)}
+body.side-closed .side{display:none}
+body.side-closed .reveal{right:16px}
+.resizer{position:absolute; left:-4px; top:0; bottom:0; width:8px; cursor:col-resize; z-index:5}
+.resizer:hover,.resizer.drag{background:rgba(201,164,92,.3)}
+.tabs .tabx{flex:0 0 42px; font-size:1.05rem; letter-spacing:0}
+.sideopen{position:fixed; right:0; top:50%; transform:translateY(-50%); z-index:30; border-radius:8px 0 0 8px; padding:.7em .6em}
+@media (max-width:1000px){ .resizer{display:none} }
 </style>
 </head>
 <body>
@@ -278,14 +309,19 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
   </nav>
   <div class="lobby-grid" id="lobbyPlay">
     <div class="frame lobby-card">
-      <h2>Seu espelho</h2>
-      <div class="preview"><video id="pv" autoplay playsinline muted></video></div>
+      <h2 id="leftTitle">Seu espelho</h2>
+      <div class="preview camOnly"><video id="pv" autoplay playsinline muted></video></div>
       <div class="stack" style="margin-top:14px">
+        <div class="camOnly"><label class="lbl" for="camSel">Câmera</label><select id="camSel" class="input"></select></div>
         <div class="row">
-          <div><label class="lbl" for="camSel">Câmera</label><select id="camSel" class="input"></select></div>
           <div><label class="lbl" for="micSel">Microfone</label><select id="micSel" class="input"></select></div>
+          <div id="spkBox" hidden><label class="lbl" for="spkSel">Saída de som</label><select id="spkSel" class="input"></select></div>
         </div>
         <div>
+          <div class="meterbox"><div class="meter" title="Nível do microfone"><i id="meter1"></i></div><button class="btn sm" data-audio-reset>Reiniciar áudio</button></div>
+          <p class="help" id="micHint" hidden style="margin:6px 0 0; font-size:.88rem"></p>
+        </div>
+        <div class="camOnly">
           <label class="lbl">Orientação da imagem · <span id="orientTxt" style="color:var(--gold2)">normal</span></label>
           <div style="display:flex; gap:6px; flex-wrap:wrap">
             <button class="btn sm" data-orient="rot" title="Girar 90° no sentido horário">↻ Girar 90°</button>
@@ -294,7 +330,8 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
             <button class="btn sm" data-orient="reset">Normal</button>
           </div>
         </div>
-        <p class="help" style="margin:0">Aponte a câmera para a sua área de jogo, de cima. Ajuste até o texto das cartas aparecer <b>legível e sem espelhamento</b> — é assim que os outros vão te ver, e é isso que o leitor de cartas usa.</p>
+        <p class="help" style="margin:0; font-size:.88rem">🎧 Use fone de ouvido para evitar eco. Se o microfone não funcionar, feche Zoom, Discord, Teams ou WhatsApp e clique em <b>Reiniciar áudio</b>.</p>
+        <p class="help camOnly" style="margin:0">Aponte a câmera para a sua área de jogo, de cima. Ajuste até o texto das cartas aparecer <b>legível e sem espelhamento</b> — é assim que os outros vão te ver, e é isso que o leitor de cartas usa.</p>
       </div>
     </div>
 
@@ -302,9 +339,10 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
       <h2>Entrar na noite</h2>
       <div class="stack">
         <div><label class="lbl" for="nameIn">Nome do Matusalém</label><input id="nameIn" class="input" maxlength="24" placeholder="Ex.: Marthos"></div>
+        <label class="chk" id="obsMicBox" hidden><input type="checkbox" id="obsMic"> Entrar com o microfone aberto</label>
         <button id="btnHost" class="btn blood" style="width:100%">Criar mesa (ser o anfitrião)</button>
       </div>
-      <p class="help" id="inviteNote" hidden style="margin:14px 0 0">Você foi convidado para a mesa <b id="inviteCode" style="color:var(--gold2); letter-spacing:.15em"></b>. Digite seu nome e clique em <b>Entrar na mesa</b>.</p>
+      <p class="help" id="inviteNote" hidden style="margin:14px 0 0"></p>
       <div class="or" id="orSep">— ou —</div>
       <div class="row">
         <div><label class="lbl" for="codeIn">Código da mesa</label><input id="codeIn" class="input" maxlength="6" placeholder="ABCDE" style="text-transform:uppercase; letter-spacing:.25em; font-family:var(--fh)"></div>
@@ -362,17 +400,21 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
   <header class="topbar">
     <span class="t">The Elysium</span>
     <span class="muted" style="font-size:.9rem">Mesa <span class="code" id="roomCode" title="Copiar o link/código da mesa">—</span></span>
+    <button class="btn sm" data-link="play" title="Copiar o link para um jogador entrar na mesa">🔗 Link de jogador</button>
+    <button class="btn sm" data-link="obs" title="Copiar o link para alguém assistir à partida">👁 Link de observador</button>
     <span class="timer" id="timer" title="Tempo desde o início da partida">00:00:00</span>
     <span class="sep"></span>
     <span class="muted" style="font-size:.85rem"><span class="status-dot" id="netDot"></span><span id="netTxt">conectando…</span></span>
-    <select id="camSel2" class="input" style="width:auto; max-width:190px; padding:.3em .5em; font-size:.85rem" title="Trocar câmera"></select>
+    <select id="camSel2" class="input camOnly" style="width:auto; max-width:190px; padding:.3em .5em; font-size:.85rem" title="Trocar câmera"></select>
     <button class="btn sm" id="btnMic">Microfone ligado</button>
-    <button class="btn sm" id="btnCam">Câmera ligada</button>
+    <button class="btn sm" id="btnAudio" title="Microfone, saída de som e teste">⚙ Áudio</button>
+    <button class="btn sm camOnly" id="btnCam">Câmera ligada</button>
     <button class="btn sm" id="btnLeave">Sair</button>
   </header>
 
-  <div class="main">
+  <div class="main" id="main">
     <div class="table">
+      <div class="obsbar" id="obsBar" hidden></div>
       <div class="focusbar" id="focusBar" hidden>
         <button class="btn sm" id="btnGrid">← Ver todas as mesas</button>
         <span class="muted">Mesa de <b id="focusName"></b> · clique numa miniatura para trocar · teclas <b>1–5</b> escolhem a mesa · <b>Esc</b> volta à grade</span>
@@ -381,12 +423,14 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
       <p class="hint">Clique numa carta em qualquer vídeo para identificá-la · arraste para selecionar a área · clique no número do pool para digitar um valor · ⤢ maximiza uma mesa · ⛶ tela cheia · teclas 1–5 focam cada mesa · carregue seu deck na aba <b>Deck</b> para reconhecimento por imagem.</p>
     </div>
 
-    <aside class="side">
+    <aside class="side" id="side">
+      <div class="resizer" id="sideResizer" title="Arraste para mudar a largura do painel"></div>
       <nav class="tabs">
         <button data-tab="card" class="on">Carta</button>
         <button data-tab="table">Mesa</button>
         <button data-tab="deck">Deck</button>
         <button data-tab="log">Crônica<span class="badge" id="logBadge" hidden>0</span></button>
+        <button class="tabx" id="btnSideClose" title="Recolher o painel (mais espaço para as mesas)" aria-label="Recolher o painel">⟫</button>
       </nav>
 
       <!-- Carta -->
@@ -424,6 +468,18 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
           <button class="btn sm blood" id="btnStart">Iniciar partida</button>
         </div>
         <p class="help" id="guestNote" style="font-size:.85rem">Só o anfitrião pode sortear os assentos e (re)iniciar a partida.</p>
+        <div class="orn" style="margin:18px 0 6px">Pessoas e microfones</div>
+        <ul class="seats" id="people"></ul>
+        <div id="hostAudio" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px">
+          <button class="btn sm" id="btnMuteObs">Mutar observadores</button>
+          <button class="btn sm" id="btnUnmuteAll">Liberar todos os microfones</button>
+        </div>
+        <div class="orn" style="margin:18px 0 6px">Convidar</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap">
+          <button class="btn sm" data-link="play">Copiar link de jogador</button>
+          <button class="btn sm" data-link="obs">Copiar link de observador</button>
+        </div>
+        <p class="help" style="font-size:.85rem">Observadores (até 4) veem todas as mesas, o placar e a crônica, podem identificar cartas e falar, mas não aparecem em vídeo nem mexem no jogo.</p>
         <div class="orn" style="margin:18px 0 6px">Regras rápidas</div>
         <ul class="help" style="font-size:.88rem; padding-left:1.1em; margin:0">
           <li>Cada Matusalém começa com 30 de pool.</li>
@@ -462,6 +518,28 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
 </section>
 
 <div id="toasts"></div>
+<button class="btn blood unlock" id="unlockAudio" hidden>🔊 Clique aqui para ativar o som da mesa</button>
+<button class="btn sm sideopen" id="btnSideOpen" hidden title="Mostrar o painel de carta, mesa, deck e crônica">⟪ Painel</button>
+<div class="frame linkmenu" id="linkMenu" hidden>
+  <button class="btn sm" data-link="play">Copiar link de jogador</button>
+  <button class="btn sm" data-link="obs">Copiar link de observador</button>
+</div>
+<div class="frame apanel" id="audioPanel" hidden>
+  <div style="display:flex; justify-content:space-between; align-items:center"><div class="orn" style="flex:1">Áudio</div><button class="btn icon" id="btnAudioClose" aria-label="Fechar">✕</button></div>
+  <div class="stack" style="margin-top:12px">
+    <div><label class="lbl" for="micSel2">Microfone</label><select id="micSel2" class="input"></select></div>
+    <div id="spkBox2" hidden><label class="lbl" for="spkSel2">Saída de som</label><select id="spkSel2" class="input"></select></div>
+    <div class="meterbox"><div class="meter" title="Nível do microfone"><i id="meter2"></i></div><button class="btn sm" data-audio-reset>Reiniciar áudio</button></div>
+    <p class="help" id="micHint2" hidden style="margin:0; font-size:.88rem"></p>
+    <ul class="help" style="font-size:.88rem; padding-left:1.1em; margin:0">
+      <li>A barra verde deve se mexer quando você fala. Se não mexer, escolha outro microfone ou clique em Reiniciar áudio.</li>
+      <li>Microfone bloqueado? Clique no cadeado ao lado do endereço do site e permita o microfone.</li>
+      <li>Microfone em uso por outro programa (Zoom, Discord, Teams)? Feche-o e reinicie o áudio.</li>
+      <li>Eco na mesa? Quem está sem fone deve usar fone de ouvido.</li>
+      <li>Não escuta ninguém? Confira a saída de som e o volume do computador.</li>
+    </ul>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
@@ -475,7 +553,7 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const APP_VERSION = '2.6 · 30/09/2026';
+const APP_VERSION = '2.7 · 30/09/2026';
 const PHASES = ['Destravar','Mestre','Servos','Influência','Descarte'];
 const MAX_PLAYERS = 5;
 const START_POOL = 30;
@@ -488,6 +566,8 @@ const store = {
 };
 
 let me = { id:null, name:'', isHost:false };
+const MAX_OBS = 4;
+let obsMode = false;     // entrou pelo link de observador
 let kicked = false;
 let peer = null, hostConn = null;
 const guestConns = new Map();   // anfitrião: peerId -> DataConnection
@@ -524,27 +604,117 @@ function blankStream(){
   draw(); setInterval(draw, 1000);
   return c.captureStream(2);
 }
-async function startMedia(camId, micId){
-  const video = { width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:24} };
-  if (camId) video.deviceId = { exact: camId };
-  const audio = micId ? { deviceId:{ exact: micId }, echoCancellation:true, noiseSuppression:true } : { echoCancellation:true, noiseSuppression:true };
-  let s = null;
-  try { s = await navigator.mediaDevices.getUserMedia({ video, audio }); }
-  catch (e) {
-    try { s = await navigator.mediaDevices.getUserMedia({ video, audio:false }); toast('Microfone indisponível — você entrará sem áudio.'); }
-    catch (e2) {
-      try { s = await navigator.mediaDevices.getUserMedia({ audio, video:false }); } catch {}
-      const b = blankStream();
-      if (s) { s.addTrack(b.getVideoTracks()[0]); } else s = b;
-      toast('Não foi possível abrir a câmera. Verifique a permissão do navegador.', true);
-    }
-  }
-  const oldRaw = rawStream;
-  rawStream = s;
-  applyOrientation();
-  if (oldRaw) oldRaw.getTracks().forEach(t => t.stop());
-  await listDevices();
+/* ---- áudio: microfone sempre com uma trilha (silenciosa se preciso), para poder ligar depois sem refazer a conexão ---- */
+let actx = null;
+function audioCtx(){
+  if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} }
+  if (actx?.state === 'suspended') actx.resume().catch(() => {});
+  return actx;
 }
+function silentTrack(){
+  const ac = audioCtx(); if (!ac) return null;
+  const d = ac.createMediaStreamDestination(), o = ac.createOscillator(), g = ac.createGain();
+  g.gain.value = 0; o.connect(g); g.connect(d); o.start();
+  const t = d.stream.getAudioTracks()[0]; t._silent = true; return t;
+}
+const MIC_BASE = { echoCancellation:true, noiseSuppression:true, autoGainControl:true };
+let micErr = null;
+let wantMic = true;          // observadores escolhem se abrem o microfone
+async function getMic(micId){
+  const tries = micId ? [{ ...MIC_BASE, deviceId:{ exact:micId } }, MIC_BASE] : [MIC_BASE];   // se o microfone salvo sumiu, usa o padrão
+  for (const a of tries) {
+    try { const s = await navigator.mediaDevices.getUserMedia({ audio:a }); micErr = null; return s.getAudioTracks()[0]; }
+    catch (e) { micErr = e; if (e.name === 'NotAllowedError') break; }
+  }
+  return null;
+}
+function micErrText(e){
+  const n = e?.name || '';
+  if (n === 'NotAllowedError' || n === 'SecurityError') return 'O navegador bloqueou o microfone. Clique no cadeado ao lado do endereço do site, permita o microfone e clique em <b>Reiniciar áudio</b> (⚙ Áudio).';
+  if (n === 'NotFoundError' || n === 'OverconstrainedError') return 'Nenhum microfone encontrado. Conecte um e clique em <b>Reiniciar áudio</b> (⚙ Áudio).';
+  if (n === 'NotReadableError' || n === 'AbortError') return 'O microfone está em uso por outro programa (Zoom, Discord, Teams, WhatsApp…). Feche-o e clique em <b>Reiniciar áudio</b> (⚙ Áudio).';
+  return 'Não foi possível abrir o microfone. Clique em <b>Reiniciar áudio</b> (⚙ Áudio) ou escolha outro microfone.';
+}
+async function startMedia(camId, micId){
+  let vt = null, at = null;
+  if (!obsMode) {
+    const video = { width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:24} };
+    if (camId) video.deviceId = { exact: camId };
+    const audio = micId ? { ...MIC_BASE, deviceId:{ exact:micId } } : MIC_BASE;
+    try { const s = await navigator.mediaDevices.getUserMedia({ video, audio }); vt = s.getVideoTracks()[0]; at = s.getAudioTracks()[0]; }
+    catch (e) {
+      for (const v of camId ? [video, { width:video.width, height:video.height, frameRate:video.frameRate }] : [video]) {
+        try { vt = (await navigator.mediaDevices.getUserMedia({ video:v })).getVideoTracks()[0]; break; } catch {}
+      }
+      at = await getMic(micId);
+    }
+    if (!vt) { vt = blankStream().getVideoTracks()[0]; toast('Não foi possível abrir a câmera. Verifique a permissão do navegador.', true); }
+  } else if (wantMic) at = await getMic(micId);
+  if (!at) { if (!obsMode || wantMic) toast(micErrText(micErr), true, 10000); at = silentTrack(); }
+  const oldRaw = rawStream;
+  rawStream = new MediaStream([vt, at].filter(Boolean));
+  watchMic(at);
+  applyOrientation();
+  if (oldRaw) oldRaw.getTracks().forEach(t => { if (!rawStream.getTracks().includes(t)) t.stop(); });
+  await listDevices();
+  startMeters();
+}
+// troca só o microfone, sem mexer na câmera nem nas conexões
+async function restartAudio(micId){
+  if (!rawStream) return startMedia();
+  const want = !obsMode || wantMic;
+  const t = want ? await getMic(micId) : null;
+  if (want && !t) toast(micErrText(micErr), true, 10000);
+  setAudioTrack(t || silentTrack());
+  if (t) toast('Microfone conectado.');
+}
+function setAudioTrack(t){
+  if (!t || !rawStream) return;
+  for (const o of rawStream.getAudioTracks()) { rawStream.removeTrack(o); if (o !== t) o.stop(); }
+  rawStream.addTrack(t);
+  if (localStream && localStream !== rawStream) { for (const o of localStream.getAudioTracks()) localStream.removeTrack(o); localStream.addTrack(t); }
+  for (const { call } of calls.values()) {
+    const s = call.peerConnection?.getSenders().find(x => x.track?.kind === 'audio');
+    if (s && s.track !== t) s.replaceTrack(t).catch(() => {});
+  }
+  watchMic(t); applyTrackToggles(); listDevices(); startMeters();
+}
+function watchMic(t){
+  if (!t || t._silent) return;
+  t.onended = () => { toast('O microfone foi desconectado. Tentando reconectar…', true); setTimeout(() => restartAudio(), 800); };
+}
+const micLive = () => { const t = rawStream?.getAudioTracks()[0]; return !!t && !t._silent && t.readyState === 'live'; };
+/* medidor de nível */
+let meterRAF = null, meterSrc = null, analyser = null;
+function setMeters(f){ for (const el of [$('#meter1'), $('#meter2')]) if (el) el.style.width = Math.round(f * 100) + '%'; }
+function startMeters(){
+  try { meterSrc?.disconnect(); } catch {}
+  meterSrc = null;
+  const t = rawStream?.getAudioTracks()[0];
+  if (!t || t._silent) { setMeters(0); return; }
+  const ac = audioCtx(); if (!ac) return;
+  if (!analyser) { analyser = ac.createAnalyser(); analyser.fftSize = 512; }
+  try { meterSrc = ac.createMediaStreamSource(new MediaStream([t])); meterSrc.connect(analyser); } catch { meterSrc = null; }
+  if (!meterRAF) {
+    const buf = new Uint8Array(512);
+    const loop = () => {
+      meterRAF = requestAnimationFrame(loop);
+      if (!meterSrc) return setMeters(0);
+      analyser.getByteTimeDomainData(buf);
+      let m = 0; for (const v of buf) { const d = Math.abs(v - 128); if (d > m) m = d; }
+      setMeters(Math.min(1, m / 50));
+    };
+    loop();
+  }
+}
+/* saída de som e liberação do áudio pelo navegador */
+const canSink = typeof HTMLMediaElement !== 'undefined' && 'setSinkId' in HTMLMediaElement.prototype;
+let spk = store.get('vtes.spk', '');
+function applySink(el){ if (canSink && spk) el.setSinkId(spk).catch(() => {}); }
+function allMediaEls(){ return [...$$('#tiles video'), ...audioEls.values()]; }
+function tryPlay(el){ el.play?.().catch(e => { if (e?.name === 'NotAllowedError') $('#unlockAudio').hidden = false; }); }
+document.addEventListener('pointerdown', () => { if (actx?.state === 'suspended') actx.resume().catch(() => {}); });
+navigator.mediaDevices?.addEventListener?.('devicechange', () => listDevices());
 /* ---- orientação da câmera: aplicada na origem, então todos (e o leitor de cartas) recebem a imagem já corrigida ---- */
 let rawStream = null;          // o que vem da câmera
 let orient = store.get('vtes.orient', { rot:0, fh:false, fv:false });
@@ -621,22 +791,36 @@ async function listDevices(){
   try { devs = await navigator.mediaDevices.enumerateDevices(); } catch {}
   const curCam = rawStream?.getVideoTracks()[0]?.getSettings?.().deviceId;
   const curMic = rawStream?.getAudioTracks()[0]?.getSettings?.().deviceId;
-  const cams = devs.filter(d => d.kind === 'videoinput'), mics = devs.filter(d => d.kind === 'audioinput');
+  const cams = devs.filter(d => d.kind === 'videoinput'), mics = devs.filter(d => d.kind === 'audioinput'), outs = devs.filter(d => d.kind === 'audiooutput');
   const opt = (list, cur, label) => list.map((d,i) => `<option value="${esc(d.deviceId)}" ${d.deviceId===cur?'selected':''}>${esc(d.label || label + ' ' + (i+1))}</option>`).join('');
-  $('#camSel').innerHTML = opt(cams, curCam, 'Câmera') || '<option>nenhuma</option>';
+  $('#camSel').innerHTML = opt(cams, curCam, 'Câmera') || '<option value="">nenhuma</option>';
   $('#camSel2').innerHTML = $('#camSel').innerHTML;
-  $('#micSel').innerHTML = opt(mics, curMic, 'Microfone') || '<option>nenhum</option>';
+  const mo = (micLive() ? '' : '<option value="" selected>— sem microfone —</option>') + (opt(mics, micLive() ? curMic : null, 'Microfone') || '<option value="">nenhum encontrado</option>');
+  $('#micSel').innerHTML = mo; $('#micSel2').innerHTML = mo;
+  const showSpk = canSink && outs.length > 0;
+  $('#spkBox').hidden = !showSpk; $('#spkBox2').hidden = !showSpk;
+  if (showSpk) { const so = opt(outs, spk || 'default', 'Saída'); $('#spkSel').innerHTML = so; $('#spkSel2').innerHTML = so; }
 }
-let micOn = true, camOn = true;
+let micOn = true, camOn = true, lastMicSent = null;
+function hostMutedMe(){ const x = state ? (P(me.id) || O(me.id)) : null; return !!x?.hostMuted; }
 function applyTrackToggles(){
-  localStream?.getAudioTracks().forEach(t => t.enabled = micOn);
+  const hm = hostMutedMe(), live = micLive();
+  const on = micOn && !hm && live;
+  rawStream?.getAudioTracks().forEach(t => t.enabled = on);
+  localStream?.getAudioTracks().forEach(t => t.enabled = on);
   localStream?.getVideoTracks().forEach(t => t.enabled = camOn);
-  $('#btnMic').textContent = micOn ? 'Microfone ligado' : 'Microfone mudo';
+  const b = $('#btnMic');
+  b.textContent = hm ? '🔇 Mutado pelo anfitrião' : !live ? 'Sem microfone (ativar)' : micOn ? 'Microfone ligado' : 'Microfone mudo';
+  b.classList.toggle('blood', !on);
+  b.disabled = hm;
   $('#btnCam').textContent = camOn ? 'Câmera ligada' : 'Câmera desligada';
-  $('#btnMic').classList.toggle('blood', !micOn);
   $('#btnCam').classList.toggle('blood', !camOn);
+  const hint = hm ? 'O anfitrião mutou o seu microfone.' : !live ? (obsMode && !wantMic ? 'Microfone fechado. Clique em “Sem microfone (ativar)” para falar.' : 'Nenhum microfone ativo. Clique em Reiniciar áudio.') : '';
+  for (const el of [$('#micHint'), $('#micHint2')]) if (el) { el.textContent = hint; el.hidden = !hint; }
+  // avisa a mesa do estado do seu microfone (ajuda o anfitrião a achar problemas)
+  const st = live ? (on ? 'on' : 'off') : 'none';
+  if (inGame && state && st !== lastMicSent) { lastMicSent = st; setTimeout(() => dispatch({ k:'micInfo', v:st }), 0); }
 }
-
 /* ================= REDE ================= */
 function peerOpts(){
   const ice = [{ urls:'stun:stun.l.google.com:19302' }, { urls:'stun:stun1.l.google.com:19302' }, { urls:'stun:global.stun.twilio.com:3478' }];
@@ -670,7 +854,7 @@ function createRoom(tries=0){
   peer.on('open', id => {
     me.id = id;
     state = {
-      code, players:[], order:[], turn:null, turnNum:0, phase:0, edge:null,
+      code, players:[], obs:[], order:[], turn:null, turnNum:0, phase:0, edge:null,
       started:false, startedAt:null, log:[]
     };
     addPlayer(id, name);
@@ -699,7 +883,7 @@ function joinRoom(){
     me.id = id;
     hostConn = peer.connect(HOST_PREFIX + code, { reliable:true, metadata:{ name } });
     const failT = setTimeout(() => { if (!inGame) toast('A mesa não respondeu. Confira o código.', true); }, 12000);
-    hostConn.on('open', () => { clearTimeout(failT); hostConn.send({ t:'hello', name }); });
+    hostConn.on('open', () => { clearTimeout(failT); hostConn.send({ t:'hello', name, obs:obsMode }); });
     hostConn.on('data', onHostMsg);
     hostConn.on('close', () => { if (kicked) return; setNet(false, 'anfitrião saiu'); toast('A conexão com o anfitrião foi perdida.', true, 8000); });
   });
@@ -720,6 +904,15 @@ function handleGuestConn(conn){
     if (!msg || typeof msg !== 'object') return;
     if (msg.t === 'hello') {
       const name = String(msg.name || 'Anônimo').slice(0, 24);
+      if (msg.obs) {   // observador: não ocupa assento
+        state.obs ||= [];
+        if (state.obs.length >= MAX_OBS) { conn.send({ t:'full', obs:true }); setTimeout(() => conn.close(), 800); return; }
+        state.obs.push({ id:conn.peer, name, online:true, hostMuted:false, mic:null });
+        sysLog(`${name} entrou como observador.`);
+        guestConns.set(conn.peer, conn);
+        broadcast();
+        return;
+      }
       const back = state.players.find(p => p.name === name && !p.online);
       if (back) {
         renameId(back.id, conn.peer); back.online = true;
@@ -742,18 +935,21 @@ function handleGuestConn(conn){
     guestConns.delete(conn.peer);
     const p = state.players.find(p => p.id === conn.peer);
     if (p) { p.online = false; sysLog(`${p.name} perdeu a conexão.`); broadcast(); }
+    const o = O(conn.peer);
+    if (o) { state.obs = state.obs.filter(x => x !== o); sysLog(`${o.name} (observador) saiu.`); broadcast(); }
   });
 }
 function kickPlayer(id){
   if (!me.isHost || id === me.id) return;
-  const p = P(id); if (!p) return;
+  const p = P(id) || O(id); if (!p) return;
   const conn = guestConns.get(id);
   try { conn?.send({ t:'kicked' }); } catch {}
   setTimeout(() => { try { conn?.close(); } catch {} }, 500);
   guestConns.delete(id);
   const c = calls.get(id); if (c) { try { c.call.close(); } catch {} calls.delete(id); }
-  if (state.turn === id) { const nx = nextAliveAfter(id); state.turn = nx && nx !== id ? nx : null; state.phase = 0; }
+  if (P(id) && state.turn === id) { const nx = nextAliveAfter(id); state.turn = nx && nx !== id ? nx : null; state.phase = 0; }
   if (state.edge === id) state.edge = null;
+  state.obs = (state.obs || []).filter(q => q.id !== id);
   state.players = state.players.filter(q => q.id !== id);
   state.order = state.order.filter(x => x !== id);
   if (spotlight === id) spotlight = null;
@@ -802,22 +998,24 @@ function onHostMsg(msg){
     localStream?.getTracks().forEach(t => t.stop());
     location.replace(location.pathname);
   } else if (msg.t === 'full') {
-    toast('Esta mesa já está cheia (5 jogadores).', true);
+    toast(msg.obs ? 'Esta mesa já tem o máximo de 4 observadores.' : 'Esta mesa já está cheia (5 jogadores). Peça ao anfitrião o link de observador.', true, 8000);
   }
 }
 
 /* ---- vídeo em malha ---- */
 function syncCalls(){
   if (!state || !peer || peer.destroyed) return;
-  const online = new Set(state.players.filter(p => p.online).map(p => p.id));
+  const online = new Set([...state.players.filter(p => p.online), ...(state.obs || []).filter(o => o.online)].map(p => p.id));
+  // quem liga: o jogador liga para o observador (o observador não envia vídeo); entre iguais, o menor id
+  const iCall = id => { const a = !!O(me.id), b = !!O(id); return a !== b ? !a : me.id < id; };
   for (const id of online) {
     if (id === me.id || calls.has(id)) continue;
-    if (me.id < id) placeCall(id);    // o menor id liga — evita chamada dupla
+    if (iCall(id)) placeCall(id);
   }
   for (const [id, c] of calls) if (!online.has(id)) { try { c.call.close(); } catch {} calls.delete(id); }
 }
 function placeCall(id){
-  try { setupCall(peer.call(id, localStream)); } catch (e) { console.warn(e); }
+  try { setupCall(peer.call(id, localStream, { constraints:{ offerToReceiveAudio:true, offerToReceiveVideo:true } })); } catch (e) { console.warn(e); }
 }
 function handleIncomingCall(call){
   const prev = calls.get(call.peer);
@@ -844,7 +1042,9 @@ setInterval(() => { if (inGame) syncCalls(); }, 5000);
 
 /* ================= REGRAS / ESTADO ================= */
 const P = id => state.players.find(p => p.id === id);
-const nameOf = id => P(id)?.name || '?';
+const O = id => (state?.obs || []).find(o => o.id === id);
+const nameOf = id => P(id)?.name || O(id)?.name || '?';
+const isSilenced = id => !!(P(id) || O(id))?.hostMuted;
 function aliveOrder(){ return state.order.filter(id => { const p = P(id); return p && !p.ousted; }); }
 function preyOf(id){ const a = aliveOrder(); const i = a.indexOf(id); return a.length > 1 && i >= 0 ? a[(i+1) % a.length] : null; }
 function predatorOf(id){ const a = aliveOrder(); const i = a.indexOf(id); return a.length > 1 && i >= 0 ? a[(i-1+a.length) % a.length] : null; }
@@ -852,6 +1052,7 @@ function sysLog(text){ state.log.push({ ts:Date.now(), k:'sys', text }); }
 
 function applyAction(a, from){
   const who = nameOf(from);
+  if (O(from) && !['chat','reveal','micInfo'].includes(a.k)) return;   // observador não mexe no jogo
   const p = a.id ? P(a.id) : null;
   switch (a.k) {
     case 'pool': case 'poolSet': {
@@ -909,6 +1110,17 @@ function applyAction(a, from){
     case 'revive': if (p && p.ousted) { p.ousted = false; if (p.pool === 0) p.pool = 1; sysLog(`${who} desfez a eliminação de ${p.name}.`); } break;
     case 'rot': if (p && from === p.id) p.rot = p.rot ? 0 : 180; break;
     case 'deckInfo': if (p && from === p.id) p.deck = !!a.has; break;
+    case 'micInfo': { const x = P(from) || O(from); if (x && ['on','off','none'].includes(a.v)) x.mic = a.v; break; }
+    case 'hostMute': {
+      if (from !== me.id || !me.isHost) return;
+      const x = P(a.id) || O(a.id); if (!x || x.id === me.id) return;
+      x.hostMuted = !!a.v;
+      sysLog(x.hostMuted ? `O anfitrião mutou o microfone de ${x.name}.` : `O anfitrião liberou o microfone de ${x.name}.`);
+      break;
+    }
+    case 'muteObs': if (from === me.id && me.isHost) { (state.obs || []).forEach(o => o.hostMuted = true); sysLog('O anfitrião mutou os observadores.'); } break;
+    case 'unmuteObs': if (from === me.id && me.isHost) { (state.obs || []).forEach(o => o.hostMuted = false); sysLog('O anfitrião liberou o microfone dos observadores.'); } break;
+    case 'unmuteAll': if (from === me.id && me.isHost) { [...state.players, ...(state.obs || [])].forEach(x => x.hostMuted = false); sysLog('O anfitrião liberou todos os microfones.'); } break;
     case 'chat': { const t = String(a.text || '').trim().slice(0, 300); if (t) state.log.push({ ts:Date.now(), k:'chat', who, text:t }); break; }
     case 'reveal': {
       const c = a.card || {};
@@ -949,15 +1161,19 @@ function enterGame(){
   inGame = true;
   $('#lobby').hidden = true; $('#game').hidden = false;
   $('#roomCode').textContent = state.code || $('#codeIn').value.trim().toUpperCase();
-  history.replaceState(null, '', '#' + (state.code || ''));
+  history.replaceState(null, '', '#' + (state.code || '') + (obsMode ? '-OBS' : ''));
+  applySide();
   listDevices();
-  setTimeout(() => { sendDeckInfo(); loadCV().catch(() => {}); }, 1500);
+  lastMicSent = null; setTimeout(applyTrackToggles, 600);
+  if (obsMode) toast('Você está assistindo como observador. Use ⚙ Áudio para configurar o microfone.', false, 7000);
+  setTimeout(() => { if (!obsMode) sendDeckInfo(); loadCV().catch(() => {}); }, 1500);
   if (me.isHost) window.addEventListener('beforeunload', e => { e.preventDefault(); e.returnValue = ''; });
 }
 function render(){
   if (!state) return;
   $('#roomCode').textContent = state.code;
   renderTiles(); renderTable(); renderLog();
+  applyTrackToggles();   // aplica o mute do anfitrião, se houver
 }
 const tileEls = new Map();
 function renderTiles(){
@@ -978,13 +1194,15 @@ function renderTiles(){
       el = document.createElement('div');
       el.className = 'tile'; el.dataset.id = id;
       el.innerHTML = `<div class="vidwrap"><video autoplay playsinline></video><div class="nocam">aguardando vídeo…</div><div class="sel"></div></div><div class="plate"></div>`;
+      applySink(el.querySelector('video'));
       bindIdentify(el.querySelector('.vidwrap'), id);
       tileEls.set(id, el);
     }
     box.appendChild(el); // mantém a ordem dos assentos
     const v = el.querySelector('video');
     const stream = id === me.id ? localStream : calls.get(id)?.stream || null;
-    if (v.srcObject !== stream) { v.srcObject = stream; v.muted = id === me.id; v.play?.().catch(()=>{}); }
+    if (v.srcObject !== stream) { v.srcObject = stream; if (stream) tryPlay(v); }
+    v.muted = id === me.id || isSilenced(id);    // mute do anfitrião vale para todos
     el.querySelector('.nocam').hidden = !!stream || !!p.ousted;
     el.classList.toggle('turn', state.turn === id);
     el.classList.toggle('spot', spotlight === id);
@@ -997,7 +1215,62 @@ function renderTiles(){
     const plate = el.querySelector('.plate');
     if (!plate.querySelector('input')) plate.innerHTML = plateHTML(p);
   });
+  renderAudio();
+  renderObsBar();
 }
+// áudio dos observadores (eles não têm tela de vídeo)
+const audioEls = new Map();
+function renderAudio(){
+  const ids = (state?.obs || []).filter(o => o.online && o.id !== me.id).map(o => o.id);
+  for (const [id, el] of audioEls) if (!ids.includes(id)) { el.srcObject = null; el.remove(); audioEls.delete(id); }
+  for (const id of ids) {
+    let el = audioEls.get(id);
+    if (!el) { el = document.createElement('audio'); el.autoplay = true; el.hidden = true; document.body.appendChild(el); audioEls.set(id, el); applySink(el); }
+    const s = calls.get(id)?.stream || null;
+    if (el.srcObject !== s) { el.srcObject = s; if (s) tryPlay(el); watchLevel(id, s); }
+    el.muted = isSilenced(id);
+  }
+  for (const id of [...levels.keys()]) if (!ids.includes(id)) watchLevel(id, null);
+}
+const levels = new Map();   // id -> { src, an, buf }
+function watchLevel(id, s){
+  const o = levels.get(id); if (o) { try { o.src.disconnect(); } catch {} levels.delete(id); }
+  if (!s || !s.getAudioTracks?.().length) return;
+  const ac = audioCtx(); if (!ac) return;
+  try { const src = ac.createMediaStreamSource(s), an = ac.createAnalyser(); an.fftSize = 256; src.connect(an); levels.set(id, { src, an, buf:new Uint8Array(256) }); } catch {}
+}
+function levelOf(id){
+  const o = levels.get(id); if (!o) return 0;
+  o.an.getByteTimeDomainData(o.buf); let m = 0; for (const v of o.buf) { const d = Math.abs(v - 128); if (d > m) m = d; }
+  return m / 128;
+}
+setInterval(() => { $$('#obsBar .opill').forEach(el => el.classList.toggle('talk', !isSilenced(el.dataset.id) && levelOf(el.dataset.id) > 0.06)); }, 180);
+function renderObsBar(){
+  const box = $('#obsBar'); if (!box || !state) return;
+  const obs = state.obs || [];
+  box.hidden = !obs.length;
+  if (!obs.length) { box.innerHTML = ''; return; }
+  const mi = x => x.hostMuted ? '<span class="mi" title="Mutado pelo anfitrião">🔇</span>' : x.mic === 'on' ? '<span class="mi" title="Microfone ligado">🎤</span>'
+    : x.mic === 'off' ? '<span class="mi" title="Microfone desligado pela própria pessoa">🔕</span>' : '<span class="mi" title="Sem microfone">—</span>';
+  const host = me.isHost;
+  box.innerHTML = `<span class="ttl">👁 Observadores (${obs.length})</span>` + obs.map(x => `
+    <span class="opill ${x.hostMuted ? 'hm' : ''} ${x.online ? '' : 'off'}" data-id="${esc(x.id)}" title="${esc(x.name)}${x.id === me.id ? ' (você)' : ''}">
+      ${esc(x.name)}${x.id === me.id ? ' <span class="muted">(você)</span>' : ''} ${mi(x)}
+      ${host ? `<button data-omute="${x.hostMuted ? 0 : 1}" title="${x.hostMuted ? 'Liberar o microfone de' : 'Mutar o microfone de'} ${esc(x.name)}" aria-label="${x.hostMuted ? 'Liberar microfone' : 'Mutar microfone'}">${x.hostMuted ? '🔈' : '🔇'}</button><button data-okick="1" title="Remover ${esc(x.name)} da mesa" aria-label="Remover" style="color:#ffb0bd">✕</button>` : ''}
+    </span>`).join('')
+    + (host ? `<span class="all"><button class="btn sm" data-oall="mute" title="Mutar todos os observadores">🔇 Mutar todos</button><button class="btn sm" data-oall="free" title="Liberar o microfone de todos os observadores">🔈 Liberar todos</button></span>` : '');
+}
+$('#obsBar').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || !me.isHost) return;
+  if (b.dataset.oall) { dispatch({ k: b.dataset.oall === 'mute' ? 'muteObs' : 'unmuteObs' }); return; }
+  const id = b.closest('[data-id]')?.dataset.id; const x = O(id); if (!x) return;
+  if (b.dataset.omute) dispatch({ k:'hostMute', id, v:b.dataset.omute === '1' });
+  if (b.dataset.okick && confirm(`Remover ${x.name} da mesa?`)) kickPlayer(id);
+});
+const micChip = x => x.hostMuted ? '<span class="chip red" title="Mutado pelo anfitrião">🔇 mutado</span>'
+  : x.mic === 'none' ? '<span class="chip red" title="O microfone desta pessoa não está funcionando">sem microfone</span>'
+  : x.mic === 'off' ? '<span class="chip" title="Microfone desligado pela própria pessoa">🔇</span>'
+  : x.mic === 'on' ? '<span class="chip" title="Microfone ligado">🎤</span>' : '';
 function setFocus(id){
   spotlight = id && P(id) ? id : null;
   renderTiles();
@@ -1028,7 +1301,7 @@ function plateHTML(p){
   return `
     <div class="pname">
       ${state.turn === p.id ? '<span class="turnmark" title="Turno atual">⚜</span>' : ''}
-      <span class="n">${esc(p.name)}</span> ${roleOf(p.id)}
+      <span class="n">${esc(p.name)}</span> ${roleOf(p.id)} ${micChip(p)}
       ${p.deck ? '<span class="chip gold" title="Deck carregado: as cartas desta mesa também são reconhecidas pela imagem">deck</span>' : ''}
       ${state.edge === p.id ? '<svg class="edge" width="18" height="18" aria-label="Vantagem"><title>Tem a Vantagem</title><use href="#i-edge"/></svg>' : ''}
     </div>
@@ -1046,7 +1319,7 @@ function plateHTML(p){
       <button class="btn icon" data-act="edge" title="${state.edge === p.id ? 'Remover a Vantagem' : 'Dar a Vantagem'}"><svg width="14" height="14" style="color:var(--gold2)"><use href="#i-edge"/></svg></button>
       <button class="btn icon" data-act="spot" title="${spotlight === p.id ? 'Voltar à grade' : 'Maximizar esta mesa'}">${spotlight === p.id ? '⤡' : '⤢'}</button>
       <button class="btn icon" data-act="full" title="Tela cheia">⛶</button>
-      ${me.isHost && !isMe ? '<button class="btn icon" data-act="kick" title="Remover este jogador da mesa" style="color:#ff9aa6">✕</button>' : ''}
+      ${me.isHost && !isMe ? `<button class="btn icon" data-act="hmute" title="${p.hostMuted ? 'Liberar o microfone' : 'Mutar o microfone'} de ${esc(p.name)}">${p.hostMuted ? '🔈' : '🔇'}</button><button class="btn icon" data-act="kick" title="Remover este jogador da mesa" style="color:#ff9aa6">✕</button>` : ''}
       ${isMe ? `<button class="btn icon" data-act="orot" title="Girar minha câmera 90° (${orientLabel()})">↻</button><button class="btn icon" data-act="ofh" title="Espelhar minha câmera">⇋</button><button class="btn icon" data-act="ofv" title="Inverter minha câmera (cima/baixo)">⇅</button>` : ''}
       ${p.ousted ? '<button class="btn icon" data-act="revive" title="Desfazer eliminação">↺</button>' : ''}
     </div>`;
@@ -1063,6 +1336,7 @@ $('#tiles').addEventListener('click', e => {
   else if (act === 'revive') dispatch({ k:'revive', id });
   else if (act === 'spot') setFocus(spotlight === id ? null : id);
   else if (act === 'full') toggleFull(id);
+  else if (act === 'hmute') dispatch({ k:'hostMute', id, v:!P(id)?.hostMuted });
   else if (act === 'kick') { if (confirm(`Remover ${P(id)?.name || 'este jogador'} da mesa? A tela dele some para todos.`)) kickPlayer(id); }
   else if (act === 'editpool') {
     const inp = document.createElement('input'); inp.type = 'number'; inp.value = P(id).pool;
@@ -1089,6 +1363,13 @@ function renderTable(){
       <button class="btn icon" data-turn="1" title="Dar o turno">⚜</button>
     </li>`;
   }).join('');
+  const people = [...state.players.map(x => ({ x, role:'jogador' })), ...(state.obs || []).map(x => ({ x, role:'observador' }))];
+  $('#people').innerHTML = people.map(({ x, role }) => `<li data-id="${esc(x.id)}">
+      <span class="nm">${esc(x.name)}${x.id === me.id ? ' <span class="chip gold">você</span>' : ''}</span>
+      <span class="chip">${role}</span> ${micChip(x)}
+      ${me.isHost && x.id !== me.id ? `<button class="btn icon" data-pmute="${x.hostMuted ? 0 : 1}" title="${x.hostMuted ? 'Liberar' : 'Mutar'} o microfone">${x.hostMuted ? '🔈' : '🔇'}</button><button class="btn icon" data-pkick="1" title="Remover da mesa" style="color:#ff9aa6">✕</button>` : ''}
+    </li>`).join('');
+  $('#hostAudio').hidden = !me.isHost;
   $('#hostCtl').hidden = !me.isHost; $('#guestNote').hidden = me.isHost;
   $('#btnStart').textContent = state.started ? 'Reiniciar partida' : 'Iniciar partida';
 }
@@ -1099,6 +1380,14 @@ $('#seats').addEventListener('click', e => {
   if (b.dataset.s) dispatch({ k:'seat', id, d:+b.dataset.s });
   if (b.dataset.turn) dispatch({ k:'setTurn', id });
 });
+$('#people').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const id = b.closest('li').dataset.id; const x = P(id) || O(id); if (!x) return;
+  if (b.dataset.pmute) dispatch({ k:'hostMute', id, v:b.dataset.pmute === '1' });
+  if (b.dataset.pkick && confirm(`Remover ${x.name} da mesa?`)) kickPlayer(id);
+});
+$('#btnMuteObs').onclick = () => dispatch({ k:'muteObs' });
+$('#btnUnmuteAll').onclick = () => dispatch({ k:'unmuteAll' });
 $('#btnNextPhase').onclick = () => dispatch({ k:'nextPhase' });
 $('#btnNextTurn').onclick = () => dispatch({ k:'nextTurn' });
 $('#btnShuffle').onclick = () => dispatch({ k:'shuffle' });
@@ -1125,6 +1414,7 @@ function renderLog(){
     const fresh = L.filter(e => e.ts > renderLog.lastTs);
     fresh.filter(e => e.k === 'card' && e.who !== me.name).forEach(e => showReveal(e));
     fresh.filter(e => e.k === 'chat' && e.who !== me.name).forEach(e => toast(`<b>${esc(e.who)}:</b> ${esc(e.text)}`));
+    fresh.filter(e => e.k === 'sys' && /como observador|\(observador\) saiu/.test(e.text)).forEach(e => toast('👁 ' + esc(e.text)));
     if (activeTab !== 'log') { unread += fresh.length; $('#logBadge').textContent = unread; $('#logBadge').hidden = false; }
   }
   renderLog.lastTs = lastTs;
@@ -1211,7 +1501,7 @@ function buildDB(raw){
   }
   DB = { cards, groups, byId, byName };
 }
-function scoreGroups(lines, fullText){
+function scoreGroups(lines, fullText, allow){
   // candidatos: linhas, pares de linhas, linhas sem lixo nas pontas
   const cands = new Map(); // texto -> peso
   const add = (s, w) => { if (s.length >= 3 && (cands.get(s) || 0) < w) cands.set(s, w); };
@@ -1227,6 +1517,7 @@ function scoreGroups(lines, fullText){
   const fullG = grams(norm(fullText).slice(0, 1500));
   const out = [];
   for (const [k, g] of DB.groups) {
+    if (allow && !allow.has(k)) continue;      // busca restrita ao deck
     let best = 0;
     for (const key of g.keys) {
       for (const c of cg) {
@@ -1865,6 +2156,27 @@ function requestSnap(id, q, ms = 9000){
     sendTo(id, { t:'snapReq', reqId, to:id, from:me.id, q });
   });
 }
+// Leitura do nome feita pelo dono da mesa, só entre as cartas do deck dele. Devolve no máximo 3 nomes.
+async function ocrDeckOnly(r){
+  if (!DB || !deckCards.length || !r) return [];
+  const allow = new Set(deckCards.map(d => norm(d.card.title)));
+  const w = await getWorker();
+  const ocr = async (c, inv, psm) => { await w.setParameters({ tessedit_pageseg_mode:psm }); const { data } = await w.recognize(prep(c, inv)); return data.text || ''; };
+  const found = new Map();
+  const add = list => { for (const x of list) if ((found.get(x.title)?.score || 0) < x.score) found.set(x.title, x); };
+  const best = () => Math.max(0, ...[...found.values()].map(x => x.score));
+  if (r.warped) {
+    add(matchDB([await ocr(bandOf(r.warped, 0.015, 0.12, false, 700), false, '13'), await ocr(bandOf(r.warped, 0, 0.17, false, 900), true, '6')], true, allow));
+    if (best() < 0.6) add(matchDB([await ocr(bandOf(r.warped, 0.015, 0.12, true, 700), false, '13'), await ocr(bandOf(r.warped, 0, 0.17, true, 900), true, '6')], true, allow));
+    if (best() < 0.55) add(matchDB([await ocr(upscale(r.warped), false, '11')], false, allow));
+  } else if (r.crops) {
+    const [main, land] = r.crops;
+    add(matchDB([await ocr(upscale(main), false, '11'), await ocr(upscale(main), true, '11')], false, allow));
+    if (best() < 0.55) for (const deg of [90, 270]) add(matchDB([await ocr(upscale(rotCanvas(land || main, deg)), false, '11')], false, allow));
+  }
+  return [...found.values()].filter(x => x.score >= 0.35).sort((a, b) => b.score - a.score).slice(0, 3).map(x => ({ title:x.title, score:x.score }));
+}
+const hitsSure = hs => !!hs?.[0] && hs[0].conf >= 0.8 && (!hs[1] || hs[1].inliers < hs[0].inliers * 0.8);
 async function onP2P(msg){
   if (msg.t === 'snapReq') {
     const v = tileEls.get(me.id)?.querySelector('video') || $('#pv');
@@ -1875,6 +2187,10 @@ async function onP2P(msg){
         reply = { ...reply, ok:true, quad:r.quad, fw:r.fw, hits:r.hits,
           warped:r.warped ? r.warped.toDataURL('image/jpeg', 0.9) : null,
           crops:r.crops ? r.crops.map(c => c.toDataURL('image/jpeg', 0.92)) : null };
+        if (deckCards.length) {   // com deck: a busca fica só nas cartas do deck do dono
+          reply.deckOnly = true;
+          if (!hitsSure(r.hits)) { try { reply.texts = (await withTimeout(ocrDeckOnly(r), 15000)) || []; } catch { reply.texts = []; } }
+        }
       }
     } catch (e) { console.warn(e); }
     sendTo(msg.from, reply);
@@ -1955,9 +2271,9 @@ function toLines(t, allTop){
   const top = allTop ? ls.length : Math.max(3, Math.ceil(ls.length * 0.35));
   return ls.map((s, i) => ({ s, w: i < top ? 1 : 0.85 }));
 }
-function matchDB(texts, allTop){
+function matchDB(texts, allTop, allow){
   const lines = texts.flatMap(t => toLines(t, allTop));
-  return scoreGroups(lines, texts.join('\n')).map(x => ({ title:x.g.title, score:x.score, cards:x.g.cards, url:x.g.cards[0].url, via:['texto'] }));
+  return scoreGroups(lines, texts.join('\n'), allow).map(x => ({ title:x.g.title, score:x.score, cards:x.g.cards, url:x.g.cards[0].url, via:['texto'] }));
 }
 async function apiCandidates(lines){
   const qs = lines.map(o => o.s.replace(/[^\p{L}\p{N} ',.-]/gu, '').trim()).filter(l => l.length >= 4).slice(0, 6);
@@ -1994,19 +2310,20 @@ async function identify(video, id, q, owner, wrap){
   const best = () => Math.max(0, ...[...found.values()].map(x => Math.min(1, x.score)));
   try {
     // 1) imagem + contorno + comparação com o deck — feitos por quem tem a imagem original
-    let r = null, hi = false;
+    let r = null, hi = false, deckOnly = false, deckTexts = null;
     msg.textContent = id === me.id ? 'procurando o contorno da carta…' : 'pedindo a imagem original ao jogador…';
     setBar(0.08);
     if (id !== me.id) {
-      const resp = await requestSnap(id, q);
+      if (P(id)?.deck) msg.textContent = 'o jogador está comparando a carta com o deck dele…';
+      const resp = await requestSnap(id, q, P(id)?.deck ? 25000 : 9000);
       if (resp?.ok) {
-        hi = true;
+        hi = true; deckOnly = !!resp.deckOnly; deckTexts = resp.texts || null;
         r = { quad:resp.quad, fw:resp.fw, hits:resp.hits || [],
           warped:resp.warped ? await toCanvas(resp.warped) : null,
           crops:resp.crops ? await Promise.all(resp.crops.map(toCanvas)) : null };
       }
     }
-    if (!r) { r = await analyzeLocal(video, q, { useDeck:id === me.id, cvWait:20000 }); hi = id === me.id; }
+    if (!r) { r = await analyzeLocal(video, q, { useDeck:id === me.id, cvWait:20000 }); hi = id === me.id; deckOnly = id === me.id && deckCards.length > 0; }
     setBar(0.3);
     if (r.quad) {
       showQuad(wrap, r.quad);
@@ -2014,6 +2331,8 @@ async function identify(video, id, q, owner, wrap){
     }
     const tags = [hi ? '<span class="chip gold" title="Feito com a imagem original da câmera do jogador">alta resolução</span>' : '<span class="chip" title="O jogador não respondeu; usando o vídeo recebido">vídeo recebido</span>'];
     if (r.warped) tags.push('<span class="chip gold" title="Contorno encontrado e perspectiva corrigida">contorno</span>');
+    tags.push(deckOnly ? '<span class="chip gold" title="Busca só entre as cartas do deck deste jogador">só o deck</span>'
+      : '<span class="chip" title="Este jogador não carregou o deck (ou não respondeu): busca em todas as cartas">todas as cartas</span>');
     $('#srcTag').innerHTML = tags.join(' ');
     const shown = r.warped || r.crops[0];
     const thumb = document.createElement('canvas'); thumb.width = shown.width; thumb.height = shown.height; thumb.getContext('2d').drawImage(shown, 0, 0);
@@ -2057,7 +2376,15 @@ async function identify(video, id, q, owner, wrap){
     const topTitles = n => [...found.values()].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).map(x => x.title).slice(0, n);
 
     let rawAll = '';
-    if (!strong && DB) {
+    if (deckOnly && !strong) {
+      // busca restrita ao deck do dono: nomes lidos (por ele, ou por mim se a mesa é minha) + conferência pela imagem
+      msg.textContent = 'lendo o nome entre as cartas do deck…';
+      const th = id === me.id ? await ocrDeckOnly(r) : (deckTexts || []);
+      merge(th.map(x => { const g = DB?.groups.get(norm(x.title)); return { title:x.title, score:x.score, cards:g?.cards || null, url:g?.cards[0]?.url, via:['texto'] }; }));
+      if (found.size && DB && await verify(topTitles(4), 'conferindo pela imagem')) { strong = true; how = 'reconhecida pela imagem (deck do jogador)'; }
+      if (!how) how = found.size ? 'lida entre as cartas do deck do jogador' : '';
+    }
+    if (!strong && DB && !deckOnly) {
       // cartas já vistas nesta mesa (e o seu deck, se a mesa for a sua): só imagem, sem ler texto
       const seen = [...(seenCards.get(owner) || []), ...(id === me.id ? deckCards.map(d => d.card.title) : [])];
       if (seen.length) {
@@ -2067,7 +2394,7 @@ async function identify(video, id, q, owner, wrap){
     }
 
     // 4) texto (OCR): só sugere candidatas; quem decide é a imagem
-    if (!strong) {
+    if (!strong && !deckOnly) {
       ocrProg = onProg;
       const w = await getWorker();
       const ocr = async (canvas, inv, psm) => { await w.setParameters({ tessedit_pageseg_mode:psm }); const { data } = await w.recognize(prep(canvas, inv)); pass++; rawAll += (data.text || '') + '\n'; return data.text || ''; };
@@ -2123,7 +2450,10 @@ function showCandidates(res, owner){
   const open = i => { $$('#cands .cand').forEach((b, j) => b.classList.toggle('on', j === i)); const x = res[i]; if (x.cards) showCard(x.cards, x.pick || 0); else openCardByName(x.title); };
   $$('#cands .cand').forEach(b => b.onclick = () => { open(+b.dataset.i); noteSeen(owner, res[+b.dataset.i].title); });   // escolha manual ensina a mesa
   open(0);
-  if (res[0].score != null && res[0].score < 0.5) toast('Leitura incerta — confira as candidatas.');
+  // com o painel recolhido o resultado não aparece na lateral: mostra um aviso
+  if (document.fullscreenElement || document.body.classList.contains('side-closed'))
+    toast(`${res[0].url ? `<img src="${esc(res[0].url)}" alt="" style="width:90px; float:left; margin:0 10px 0 0; border-radius:6px">` : ''}Carta: <b>${esc(res[0].title)}</b>${res[0].score != null && res[0].score < 0.5 ? '<br><span class="muted">leitura incerta</span>' : ''}<div style="clear:both"></div>`, false, 6000);
+  else if (res[0].score != null && res[0].score < 0.5) toast('Leitura incerta — confira as candidatas.');
 }
 
 /* ================= LOBBY / INICIALIZAÇÃO ================= */
@@ -2136,10 +2466,22 @@ $('#btnHost').onclick = () => createRoom();
 $('#btnJoin').onclick = () => joinRoom();
 $('#codeIn').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
 $('#camSel').onchange = e => startMedia(e.target.value, $('#micSel').value);
-$('#micSel').onchange = e => startMedia($('#camSel').value, e.target.value);
+$('#micSel').onchange = e => { wantMic = true; restartAudio(e.target.value); };
+$('#micSel2').onchange = e => { wantMic = true; micOn = true; restartAudio(e.target.value); };
+const setSpk = v => { spk = v; store.set('vtes.spk', v); allMediaEls().forEach(applySink); $('#spkSel').value = v; $('#spkSel2').value = v; };
+$('#spkSel').onchange = e => setSpk(e.target.value);
+$('#spkSel2').onchange = e => setSpk(e.target.value);
+$$('[data-audio-reset]').forEach(b => b.onclick = () => { wantMic = true; micOn = true; if (obsMode) { $('#obsMic').checked = true; store.set('vtes.obsMic', true); } audioCtx(); restartAudio($('#micSel').value || undefined); });
+$('#obsMic').onchange = e => { wantMic = e.target.checked; store.set('vtes.obsMic', wantMic); if (wantMic) restartAudio(); else setAudioTrack(silentTrack()); };
+$('#btnAudio').onclick = () => { $('#audioPanel').hidden = !$('#audioPanel').hidden; audioCtx(); listDevices(); };
+$('#btnAudioClose').onclick = () => $('#audioPanel').hidden = true;
+$('#unlockAudio').onclick = () => { audioCtx(); allMediaEls().forEach(el => el.play?.().catch(() => {})); $('#unlockAudio').hidden = true; };
 $('#camSel2').onchange = e => startMedia(e.target.value, rawStream?.getAudioTracks()[0]?.getSettings?.().deviceId);
 $$('[data-orient]').forEach(b => b.onclick = () => orientAct(b.dataset.orient));
-$('#btnMic').onclick = () => { micOn = !micOn; applyTrackToggles(); };
+$('#btnMic').onclick = () => {
+  if (!micLive()) { wantMic = true; micOn = true; if (obsMode) { $('#obsMic').checked = true; store.set('vtes.obsMic', true); } restartAudio($('#micSel').value || undefined); return; }
+  micOn = !micOn; applyTrackToggles();
+};
 $('#btnCam').onclick = () => { camOn = !camOn; applyTrackToggles(); };
 $('#btnLeave').onclick = () => {
   if (me.isHost && !confirm('Você é o anfitrião: sair encerra a mesa para todos. Sair mesmo assim?')) return;
@@ -2147,12 +2489,64 @@ $('#btnLeave').onclick = () => {
   localStream?.getTracks().forEach(t => t.stop());
   location.hash = ''; location.reload();
 };
-$('#roomCode').onclick = () => {
-  // publicado na internet: copia o link que já abre com o código preenchido; aberto como arquivo: só o código
+function applySide(){
+  const closed = !!store.get('vtes.sideClosed', false);
+  document.body.classList.toggle('side-closed', closed);
+  $('#btnSideOpen').hidden = !closed || !inGame;
+  document.documentElement.style.setProperty('--sideW', Math.max(260, store.get('vtes.sideW', 380) | 0) + 'px');
+}
+$('#btnSideClose').onclick = () => { store.set('vtes.sideClosed', true); applySide(); };
+$('#btnSideOpen').onclick = () => { store.set('vtes.sideClosed', false); applySide(); };
+(() => {
+  const rz = $('#sideResizer'); let drag = false;
+  rz.addEventListener('pointerdown', e => { drag = true; rz.classList.add('drag'); rz.setPointerCapture(e.pointerId); e.preventDefault(); });
+  rz.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const w = Math.round(Math.max(260, Math.min(Math.min(760, innerWidth * 0.6), innerWidth - e.clientX)));
+    document.documentElement.style.setProperty('--sideW', w + 'px'); store.set('vtes.sideW', w);
+  });
+  const end = () => { drag = false; rz.classList.remove('drag'); };
+  rz.addEventListener('pointerup', end); rz.addEventListener('pointercancel', end);
+})();
+function copyLink(kind){
+  // publicado na internet: copia o link que já abre com o código; aberto como arquivo: só o código
   const online = /^https?:/.test(location.protocol);
-  const txt = online ? location.origin + location.pathname + '#' + (state?.code || '') : (state?.code || '');
-  navigator.clipboard?.writeText(txt).then(() => toast(online ? 'Link da mesa copiado — é só mandar para os jogadores.' : 'Código copiado.'));
+  const code = (state?.code || '') + (kind === 'obs' ? '-OBS' : '');
+  const txt = online ? location.origin + location.pathname + '#' + code : code;
+  const ok = () => toast(kind === 'obs'
+    ? (online ? 'Link de <b>observador</b> copiado: é só mandar para quem vai assistir.' : 'Código de observador copiado.')
+    : (online ? 'Link de <b>jogador</b> copiado: é só mandar para os jogadores.' : 'Código copiado.'));
+  const manual = () => prompt(kind === 'obs' ? 'Link de observador (copie e envie):' : 'Link de jogador (copie e envie):', txt);
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(txt).then(ok, manual); else manual();
+  $('#linkMenu').hidden = true;
+}
+$('#roomCode').onclick = e => {
+  const m = $('#linkMenu'), r = e.target.getBoundingClientRect();
+  m.style.left = Math.max(8, Math.min(r.left, innerWidth - 250)) + 'px'; m.style.top = (r.bottom + 6) + 'px';
+  m.hidden = !m.hidden;
 };
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-link]'); if (b) { copyLink(b.dataset.link); return; }
+  if (!e.target.closest('#linkMenu,#roomCode')) $('#linkMenu').hidden = true;
+});
+function setupInvite(code){
+  // aberto pelo link: só a opção de entrar (jogador) ou assistir (observador)
+  $('#codeIn').value = code;
+  $('#btnHost').hidden = true; $('#orSep').hidden = true;
+  $('#btnJoin').classList.add('blood');
+  $('#inviteNote').hidden = false;
+  if (obsMode) {
+    document.body.classList.add('obs');
+    wantMic = !!store.get('vtes.obsMic', false); $('#obsMic').checked = wantMic; $('#obsMicBox').hidden = false;
+    $('#leftTitle').textContent = 'Seu microfone';
+    $('#btnJoin').textContent = 'Assistir à mesa';
+    $('#inviteNote').innerHTML = `Você foi convidado para <b>assistir</b> à mesa <b style="color:var(--gold2); letter-spacing:.15em">${esc(code)}</b>. Observadores não aparecem em vídeo; você pode falar se abrir o microfone.`;
+  } else {
+    $('#btnJoin').textContent = 'Entrar na mesa';
+    $('#inviteNote').innerHTML = `Você foi convidado para a mesa <b style="color:var(--gold2); letter-spacing:.15em">${esc(code)}</b>. Digite seu nome e clique em <b>Entrar na mesa</b>.`;
+  }
+  $('#lobbyPlay').insertAdjacentHTML('afterend', '<p class="help" style="font-size:.8rem; color:var(--dim); margin-top:14px; text-align:center">Quer abrir a sua própria mesa? Acesse o site sem o código no final do endereço.</p>');
+}
 
 (function init(){
   $('#appVer').textContent = APP_VERSION;
@@ -2161,15 +2555,8 @@ $('#roomCode').onclick = () => {
   $('#nameIn').value = store.get('vtes.name', '');
   const turn = store.get('vtes.turn', null);
   if (turn) { $('#turnUrl').value = turn.u || ''; $('#turnUser').value = turn.user || ''; $('#turnPass').value = turn.pass || ''; }
-  const h = location.hash.replace('#', '').toUpperCase();
-  if (/^[A-Z0-9]{4,6}$/.test(h)) {
-    // aberto pelo link de convite: só a opção de entrar, para ninguém criar outra mesa por engano
-    $('#codeIn').value = h;
-    $('#btnHost').hidden = true; $('#orSep').hidden = true;
-    $('#inviteNote').hidden = false; $('#inviteCode').textContent = h;
-    $('#btnJoin').textContent = 'Entrar na mesa'; $('#btnJoin').classList.add('blood');
-    $('#lobbyPlay').insertAdjacentHTML('afterend', '<p class="help" style="font-size:.8rem; color:var(--dim); margin-top:14px; text-align:center">Quer abrir a sua própria mesa? Acesse o site sem o código no final do endereço.</p>');
-  }
+  const hm = location.hash.replace('#', '').toUpperCase().match(/^([A-Z0-9]{4,6})(-OBS)?$/);
+  if (hm) { obsMode = !!hm[2]; setupInvite(hm[1]); }
   try {
     if (sessionStorage.getItem('vtes.kicked')) { sessionStorage.removeItem('vtes.kicked'); toast('O anfitrião removeu você da mesa.', true, 10000); }
   } catch {}

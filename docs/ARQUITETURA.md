@@ -1,4 +1,4 @@
-# The Elysium — arquitetura (v2.6, set/2026)
+# The Elysium — arquitetura (v2.7, set/2026)
 
 Nome da plataforma: **The Elysium**. Página única, sem servidor próprio.
 
@@ -45,3 +45,10 @@ Testado com uma cena sintética (1920×1080, 4 cartas, uma travada, perspectiva)
 - O Netlify fica ligado ao repositório: cada commit na branch `main` gera um deploy de produção. O `netlify.toml` publica a pasta `site/`, sem etapa de build.
 - Para economizar créditos do Netlify, juntar várias mudanças num commit só; testes podem ir para outra branch (prévias de deploy não gastam créditos).
 - O rodapé do lobby traz os links exigidos pelo plano Open Source do Netlify: licença, código-fonte, código de conduta e "This site is powered by Netlify".
+
+## Novidades da 2.7 (trazidas do Jack In)
+- **Microfone:** a conexão sempre tem uma trilha de áudio (silenciosa se o microfone falhar), então dá para ligar o microfone depois sem refazer a conexão. Mensagens específicas (bloqueado, não encontrado, em uso por outro programa), reconexão automática se o microfone cair, painel **⚙ Áudio** (microfone, saída de som, medidor, "Reiniciar áudio"), botão para liberar o som quando o navegador bloqueia. Cada pessoa informa o estado do microfone (`micInfo`: 🎤 / 🔇 / sem microfone).
+- **Mute do anfitrião:** `hostMute` por pessoa (🔇 na mesa de cada jogador, na barra de observadores e na lista "Pessoas e microfones"), `muteObs`, `unmuteObs`, `unmuteAll`. Aplicado no navegador da pessoa e silenciado localmente por todos.
+- **Observadores:** link `#CÓDIGO-OBS` (botões "🔗 Link de jogador" e "👁 Link de observador" no topo, no menu do código da mesa e na aba Mesa). Até 4 (`MAX_OBS`), em `state.obs`, sem vídeo e sem mexer no jogo (o anfitrião aceita deles só `chat`, `reveal` e `micInfo`). Microfone opcional. Barra de observadores acima das mesas, com brilho verde quando a pessoa fala. O jogador liga para o observador.
+- **Painel lateral recolhível:** ⟫ recolhe, "⟪ Painel" reabre, a borda pode ser arrastada (260–760 px); salvo em `vtes.sideClosed` e `vtes.sideW`. Com o painel recolhido, a carta identificada aparece num aviso.
+- **Identificação só no deck do jogador:** se o dono da mesa carregou o deck, o navegador dele compara a imagem com todas as cartas do deck e, sem certeza, lê o nome filtrando só os títulos do deck (`ocrDeckOnly`, `scoreGroups(..., allow)`), devolvendo no máximo 3 nomes; quem clicou confere pela imagem oficial. Prazo de resposta de 25 s com deck. Sem deck, a busca é em todas as cartas (etiqueta "todas as cartas").
