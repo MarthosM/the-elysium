@@ -2,7 +2,7 @@
 
 Mesa online de **Vampire: The Eternal Struggle (VTES)** para jogar com **cartas físicas e câmeras**, até 5 jogadores. Cada Matusalém aponta a câmera para a própria área de jogo; a plataforma cuida do vídeo e do áudio, do pool, dos pontos de vitória, da Vantagem, dos turnos e fases, da eliminação automática e da **identificação das cartas** clicando nelas no vídeo.
 
-**Site:** https://SEU-SITE.netlify.app · **Projeto irmão:** [Jack In](https://github.com/MarthosM/jack-in) (Netrunner)
+**Site:** https://elysium-vtes.netlify.app · **Projeto irmão:** [Jack In](https://github.com/MarthosM/jack-in) (Netrunner)
 
 ## Recursos
 - Vídeo e áudio direto entre os jogadores (WebRTC, via PeerJS), sem servidor próprio: o navegador de quem cria a mesa guarda o estado da partida.
