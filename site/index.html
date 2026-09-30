@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Elysium — VTES por câmera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0607; --bg2:#120a0c; --panel:#170d10; --panel2:#1f1115; --line:#3a1f25; --line2:#5a2a33;
+  --blood:#8e0b18; --blood2:#c8172d; --gold:#c9a45c; --gold2:#e6c98a; --bone:#eadfca; --muted:#a08f80; --dim:#6d5f55;
+  --ok:#6fae7a; --radius:10px;
+  --fh:'Cinzel',Georgia,serif; --fd:'Cinzel Decorative','Cinzel',Georgia,serif; --fb:'Crimson Pro',Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(142,11,24,.28), transparent 60%),
+    radial-gradient(900px 600px at 100% 110%, rgba(90,10,20,.25), transparent 60%),
+    radial-gradient(700px 500px at 0% 100%, rgba(60,8,16,.3), transparent 60%),
+    var(--bg);
+  color:var(--bone); font-family:var(--fb); font-size:17px; line-height:1.4;
+  overflow-x:hidden;
+}
+body::before{ /* grão */
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.06; z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+a{color:var(--gold2)}
+
+/* ---------- componentes ---------- */
+.btn{
+  background:linear-gradient(180deg,#2a1419,#1a0c0f); border:1px solid var(--line2); color:var(--bone);
+  padding:.5em 1em; border-radius:8px; font-family:var(--fh); font-size:.8rem; letter-spacing:.06em; text-transform:uppercase;
+  transition:border-color .15s, background .15s, transform .05s;
+}
+.btn:hover{border-color:var(--gold)}
+.btn:active{transform:translateY(1px)}
+.btn.blood{background:linear-gradient(180deg,#b3142a,#6d0812); border-color:#d23a4d; box-shadow:0 0 18px rgba(200,23,45,.25)}
+.btn.blood:hover{box-shadow:0 0 26px rgba(200,23,45,.45)}
+.btn.sm{padding:.3em .6em; font-size:.7rem}
+.btn.icon{padding:.25em .5em; font-size:.85rem; line-height:1}
+.btn[disabled]{opacity:.45; cursor:not-allowed}
+.input,select.input{
+  background:#0e0709; border:1px solid var(--line2); border-radius:8px; padding:.55em .8em; color:var(--bone); width:100%;
+}
+.input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,164,92,.15)}
+label.lbl{display:block; font-family:var(--fh); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:0 0 .35em}
+.orn{display:flex; align-items:center; gap:.8em; color:var(--gold); font-family:var(--fh); letter-spacing:.2em; font-size:.75rem; text-transform:uppercase}
+.orn::before,.orn::after{content:""; flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--line2),transparent)}
+.chip{display:inline-block; padding:.05em .5em; border:1px solid var(--line2); border-radius:999px; font-size:.78rem; color:var(--muted); white-space:nowrap}
+.chip.gold{border-color:var(--gold); color:var(--gold2)}
+.chip.red{border-color:var(--blood2); color:#ff9aa6}
+.muted{color:var(--muted)}
+.frame{
+  background:linear-gradient(180deg,rgba(31,17,21,.92),rgba(18,10,12,.92));
+  border:1px solid var(--line); border-radius:var(--radius); position:relative;
+  box-shadow:0 10px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.03);
+}
+.frame::before{content:""; position:absolute; inset:4px; border:1px solid rgba(201,164,92,.12); border-radius:calc(var(--radius) - 3px); pointer-events:none}
+
+/* ---------- lobby ---------- */
+#lobby{position:relative; z-index:1; min-height:100%; display:flex; flex-direction:column; align-items:center; padding:40px 16px}
+.brand{text-align:center; margin-bottom:28px}
+.brand svg{width:96px; height:48px; filter:drop-shadow(0 0 12px rgba(200,23,45,.6))}
+.brand h1{font-family:var(--fd); font-size:clamp(1.8rem,5vw,3.2rem); margin:.15em 0 .05em; letter-spacing:.04em;
+  background:linear-gradient(180deg,#f3e6c7,#c9a45c 55%,#7d5a24); -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 30px rgba(201,164,92,.15)}
+.brand p{margin:0; color:var(--muted); font-style:italic; font-size:1.1rem}
+.lobby-grid{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:22px; width:min(1040px,100%)}
+@media (max-width:820px){.lobby-grid{grid-template-columns:1fr}}
+.lobby-card{padding:22px}
+.lobby-card h2{font-family:var(--fh); font-size:1rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); margin:0 0 14px}
+.preview{aspect-ratio:16/9; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line2); position:relative}
+.preview video{position:absolute; inset:0; width:100%; height:100%; object-fit:contain}
+.row{display:flex; gap:10px; align-items:end}
+.row>*{flex:1}
+.stack>*+*{margin-top:14px}
+.or{text-align:center; color:var(--dim); font-family:var(--fh); font-size:.75rem; letter-spacing:.2em; margin:16px 0}
+details.adv summary{cursor:pointer; color:var(--muted); font-size:.9rem}
+details.adv[open] summary{margin-bottom:10px}
+.help{font-size:.95rem; color:var(--muted)}
+.help li{margin:.25em 0}
+
+/* ---------- jogo ---------- */
+#game{position:relative; z-index:1; height:100vh; display:grid; grid-template-rows:auto 1fr; }
+.topbar{display:flex; align-items:center; gap:14px; padding:8px 14px; border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(20,10,12,.95),rgba(12,6,8,.9)); flex-wrap:wrap}
+.topbar .t{font-family:var(--fd); color:var(--gold2); font-size:1.05rem; white-space:nowrap}
+.topbar .sep{flex:1}
+.code{font-family:var(--fh); letter-spacing:.25em; color:var(--bone); background:#0e0709; border:1px dashed var(--gold); padding:.15em .6em; border-radius:6px; cursor:pointer}
+.timer{font-family:var(--fh); color:var(--muted); font-variant-numeric:tabular-nums}
+.status-dot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--dim); margin-right:6px}
+.status-dot.on{background:var(--ok); box-shadow:0 0 8px var(--ok)}
+.main{display:grid; grid-template-columns:minmax(0,1fr) 380px; min-height:0}
+@media (max-width:1000px){ .main{grid-template-columns:1fr; grid-template-rows:auto auto} #game{height:auto; min-height:100vh} }
+.table{padding:12px; overflow:auto; min-height:0}
+.tiles{display:grid; gap:12px; grid-template-columns:repeat(var(--cols,2),minmax(0,1fr)); grid-auto-rows:auto}
+@media (max-width:1000px){.tiles:not(.focus){grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}}
+@media (max-width:520px){.tiles{grid-template-columns:1fr}}
+.tile{position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--line2); background:#050303;
+  box-shadow:0 8px 30px rgba(0,0,0,.55); display:flex; flex-direction:column}
+.tile{container-type:inline-size}
+@container (max-width:600px){ .plate .pname{flex:1 1 100%} }
+.tile.turn{border-color:var(--blood2); box-shadow:0 0 0 1px var(--blood2), 0 0 32px rgba(200,23,45,.35)}
+.tile.spot{grid-column:1/-1}
+/* modo foco: uma mesa grande + as outras em miniatura ao lado */
+.tiles.focus{grid-template-columns:minmax(0,1fr) 250px; grid-template-rows:repeat(4,auto) 1fr; align-items:start}
+.tiles.focus .tile.spot{grid-column:1; grid-row:1 / -1}
+.tiles.focus .tile:not(.spot){grid-column:2}
+.tiles.focus .tile:not(.spot) .vidwrap{cursor:zoom-in}
+.tiles.focus .tile:not(.spot) .plate{padding:4px 8px; gap:6px}
+.tiles.focus .tile:not(.spot) .ctr{padding:0 4px}
+.tiles.focus .tile:not(.spot) .ctr button,.tiles.focus .tile:not(.spot) .tools,.tiles.focus .tile:not(.spot) .chip{display:none}
+.tiles.focus .tile:not(.spot) .ctr b{font-size:.95rem}
+.tiles.focus .tile:not(.spot) .pname{font-size:.8rem; flex:1 1 auto}
+.focusbar{display:flex; align-items:center; gap:10px; margin:0 0 10px; flex-wrap:wrap}
+.focusbar .muted{font-size:.85rem}
+.tile:fullscreen{border:none; border-radius:0; background:#000}
+.tile:fullscreen .vidwrap{flex:1; aspect-ratio:auto!important; height:auto!important}
+@media (max-width:1000px){
+  .tiles.focus{grid-template-columns:repeat(4,minmax(0,1fr)); grid-template-rows:none}
+  .tiles.focus .tile.spot{grid-column:1/-1; grid-row:auto}
+  .tiles.focus .tile:not(.spot){grid-column:auto}
+  .tiles.focus .tile.spot .vidwrap{height:auto!important; aspect-ratio:16/9!important}
+}
+.tile.ousted .vidwrap{filter:grayscale(1) brightness(.45)}
+.vidwrap{position:relative; aspect-ratio:16/9; background:#000; cursor:crosshair; touch-action:none}
+.tile.spot .vidwrap{aspect-ratio:auto; height:calc(100vh - 170px); min-height:320px}
+.vidwrap video{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; pointer-events:none}
+.vidwrap .nocam{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--dim); font-style:italic; pointer-events:none}
+.sel{position:absolute; border:2px solid var(--gold2); box-shadow:0 0 0 9999px rgba(0,0,0,.35); pointer-events:none; display:none; border-radius:4px}
+.flash{position:absolute; border:2px solid var(--blood2); pointer-events:none; border-radius:4px; animation:fl .9s ease-out forwards}
+@keyframes fl{from{opacity:1}to{opacity:0; transform:scale(1.05)}}
+.oustmark{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--fd); font-size:clamp(.9rem,8cqi,2.2rem); color:#ff5d6e; text-shadow:0 0 20px #000; pointer-events:none; letter-spacing:.1em}
+.plate{display:flex; align-items:center; gap:10px; padding:8px 10px; background:linear-gradient(180deg,#1b0e11,#120a0c); border-top:1px solid var(--line2); flex-wrap:wrap}
+.pname{font-family:var(--fh); font-weight:700; font-size:.95rem; display:flex; align-items:center; gap:6px; min-width:0; flex:1}
+.pname .n{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.turnmark{color:var(--blood2)}
+.edge{color:var(--gold2); filter:drop-shadow(0 0 6px rgba(230,201,138,.6))}
+.ctr{display:flex; align-items:center; gap:4px; background:#0c0607; border:1px solid var(--line); border-radius:8px; padding:2px 4px}
+.ctr b{min-width:2ch; text-align:center; font-family:var(--fh); font-size:1.15rem; cursor:text}
+.ctr.pool b{color:#ff8390}
+.ctr.vp b{color:var(--gold2)}
+.ctr svg{width:16px; height:16px}
+.ctr button{background:none; border:none; color:var(--muted); width:24px; height:24px; border-radius:6px; font-size:1rem; line-height:1}
+.ctr button:hover{background:#2a1419; color:var(--bone)}
+.ctr input{width:3.2ch; background:transparent; border:none; border-bottom:1px solid var(--gold); color:var(--bone); text-align:center; font-family:var(--fh); font-size:1.1rem}
+.tools{display:flex; gap:4px}
+.offline .vidwrap::after{content:"desconectado"; position:absolute; top:8px; left:8px; font-size:.75rem; background:rgba(0,0,0,.7); padding:2px 8px; border-radius:6px; color:#ff9aa6}
+.hint{color:var(--dim); font-size:.85rem; font-style:italic; margin:10px 2px 0}
+
+/* painel lateral */
+.side{border-left:1px solid var(--line); display:grid; grid-template-rows:auto 1fr; min-height:0; background:rgba(12,6,8,.6)}
+.tabs{display:flex; border-bottom:1px solid var(--line)}
+.tabs button{flex:1; background:none; border:none; padding:12px 6px; font-family:var(--fh); font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); border-bottom:2px solid transparent; position:relative}
+.tabs button.on{color:var(--gold2); border-bottom-color:var(--blood2)}
+.tabs .badge{position:absolute; top:6px; right:10px; background:var(--blood2); color:#fff; border-radius:999px; font-size:.65rem; padding:0 .45em; font-family:var(--fb)}
+.pane{overflow:auto; padding:14px; min-height:0}
+@media (max-width:1000px){ .side{border-left:none; border-top:1px solid var(--line)} .pane{max-height:none} }
+
+/* carta */
+.search{position:relative}
+.sugg{position:absolute; left:0; right:0; top:100%; z-index:5; background:#140a0c; border:1px solid var(--line2); border-radius:8px; margin-top:4px; max-height:320px; overflow:auto}
+.sugg div{padding:6px 10px; cursor:pointer; display:flex; justify-content:space-between; gap:8px}
+.sugg div:hover,.sugg div.on{background:#2a1419}
+.crop{display:flex; gap:10px; align-items:flex-start; margin-top:12px}
+.crop canvas{max-width:110px; max-height:150px; border:1px solid var(--line2); border-radius:6px; background:#000}
+.progress{height:4px; background:#2a1419; border-radius:4px; overflow:hidden; margin-top:6px}
+.progress i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blood),var(--blood2)); transition:width .2s}
+.cands{display:flex; flex-direction:column; gap:6px; margin-top:12px}
+.cand{display:flex; align-items:center; gap:10px; padding:6px; border:1px solid var(--line); border-radius:8px; background:#110809; cursor:pointer; text-align:left}
+.cand:hover,.cand.on{border-color:var(--gold)}
+.cand img{width:38px; height:53px; object-fit:cover; border-radius:3px; background:#222}
+.cand .sc{margin-left:auto; font-size:.8rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.card{margin-top:14px}
+.card img.art{width:100%; max-width:340px; display:block; margin:0 auto 10px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.6); background:#1a1012; aspect-ratio:358/500}
+.card h3{font-family:var(--fh); margin:.2em 0; color:var(--gold2); font-size:1.2rem}
+.card .meta{display:flex; flex-wrap:wrap; gap:5px; margin:6px 0}
+.card .txt{white-space:pre-wrap; background:#0e0709; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:.98rem}
+.variants{display:flex; gap:5px; flex-wrap:wrap; margin:6px 0}
+.variants button{background:#0e0709; border:1px solid var(--line2); border-radius:6px; padding:1px 8px; font-size:.8rem; color:var(--muted)}
+.variants button.on{border-color:var(--gold); color:var(--gold2)}
+.quad{position:absolute; inset:0; pointer-events:none; overflow:visible}
+.quad polygon{fill:rgba(230,201,138,.12); stroke:var(--gold2); stroke-width:2.5; stroke-linejoin:round; filter:drop-shadow(0 0 6px rgba(230,201,138,.8)); animation:fl 2.2s ease-out forwards}
+.help.err{color:#ff9aa6}
+.deckhead{display:flex; gap:10px; align-items:flex-start; justify-content:space-between; margin-top:6px}
+.deckhead .dn{font-family:var(--fh); color:var(--gold2); font-size:1.1rem}
+.decklist{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:3px}
+.decklist li{display:flex; align-items:center; gap:8px; padding:3px 6px; border-radius:6px; cursor:pointer; font-size:.93rem}
+.decklist li:hover{background:#1f1115}
+.decklist li img{width:26px; height:36px; object-fit:cover; border-radius:2px; background:#222}
+.decklist li b{font-family:var(--fh); color:var(--muted); min-width:2.2ch; font-size:.85rem}
+.decklist li span{flex:1; min-width:0}
+.decklist .sig{width:8px; height:8px; border-radius:50%; background:var(--line2)}
+.decklist .sig.on{background:var(--ok); box-shadow:0 0 6px var(--ok)}
+textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
+.credits{text-align:center; padding:10px 4px}
+.credits svg{width:80px; height:40px; filter:drop-shadow(0 0 10px rgba(200,23,45,.5))}
+.credits .ct{font-family:var(--fd); font-size:1.6rem; color:var(--gold2); margin:4px 0}
+.credits .author{font-family:var(--fh); font-size:1.25rem; color:var(--bone); letter-spacing:.05em}
+.credits .mail{display:inline-block; margin-top:4px; color:var(--gold2); text-decoration:none; border-bottom:1px dotted var(--gold)}
+.credits .mail:hover{color:#fff}
+.credits ul{text-align:left; padding-left:1.1em; font-size:.9rem; margin:0}
+.credits .disc{font-size:.8rem; color:var(--dim); margin-top:18px}
+.lobby-tabs{display:flex; gap:4px; margin:-8px 0 18px; border-bottom:1px solid var(--line)}
+.lobby-tabs button{background:none; border:none; border-bottom:2px solid transparent; padding:8px 18px; font-family:var(--fh); font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted)}
+.lobby-tabs button:hover{color:var(--bone)}
+.lobby-tabs button.on{color:var(--gold2); border-bottom-color:var(--blood2)}
+.empty{color:var(--dim); font-style:italic; text-align:center; padding:26px 8px; border:1px dashed var(--line); border-radius:10px; margin-top:12px}
+.empty svg{width:44px; height:44px; opacity:.5; display:block; margin:0 auto 8px}
+.ocrraw{font-size:.8rem; color:var(--dim); white-space:pre-wrap; max-height:120px; overflow:auto}
+
+/* mesa / turno */
+.phases{display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin:10px 0}
+.phases button{background:#0e0709; border:1px solid var(--line); border-radius:6px; padding:8px 2px; font-size:.72rem; font-family:var(--fh); color:var(--muted); letter-spacing:.03em}
+.phases button.on{background:linear-gradient(180deg,#8e0b18,#4d0610); color:#fff; border-color:var(--blood2)}
+.turnbox{text-align:center; padding:12px}
+.turnbox .who{font-family:var(--fh); font-size:1.3rem; color:var(--gold2)}
+.seats{list-style:none; margin:10px 0 0; padding:0; counter-reset:s}
+.seats li{display:flex; align-items:center; gap:8px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; margin-bottom:6px; background:#110809}
+.seats li::before{counter-increment:s; content:counter(s); font-family:var(--fh); color:var(--dim); width:1.2em}
+.seats li .nm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.seats li.dead .nm{text-decoration:line-through; color:var(--dim)}
+.arrowinfo{font-size:.85rem; color:var(--muted); text-align:center; margin-top:4px}
+
+/* crônica */
+.log{display:flex; flex-direction:column; gap:6px}
+.log .e{font-size:.93rem; padding:4px 8px; border-left:2px solid var(--line2)}
+.log .e.sys{color:var(--muted); font-style:italic}
+.log .e.chat{border-left-color:var(--gold)}
+.log .e.chat b{color:var(--gold2); font-family:var(--fh); font-size:.85rem}
+.log .e.card{border-left-color:var(--blood2); display:flex; gap:8px; align-items:center; cursor:pointer}
+.log .e.card img{width:40px; border-radius:3px}
+.log .ts{color:var(--dim); font-size:.72rem; margin-right:6px; font-variant-numeric:tabular-nums}
+.chatbox{display:flex; gap:6px; position:sticky; bottom:-14px; background:#0c0607; padding:10px 0 12px; margin-top:10px}
+
+/* toast */
+#toasts{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); z-index:50; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none}
+.toast{background:#1d0e12; border:1px solid var(--line2); padding:10px 16px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.6); animation:tin .2s ease-out; max-width:min(560px,92vw); pointer-events:auto}
+.toast.err{border-color:var(--blood2)}
+@keyframes tin{from{opacity:0; transform:translateY(8px)}}
+.reveal{position:fixed; right:400px; top:70px; z-index:40; width:220px; animation:tin .25s ease-out; pointer-events:none}
+.reveal img{width:100%; border-radius:12px; box-shadow:0 0 0 2px var(--blood2), 0 20px 50px rgba(0,0,0,.8)}
+.reveal div{font-family:var(--fh); text-align:center; font-size:.8rem; margin-top:6px; text-shadow:0 2px 6px #000}
+@media (max-width:1000px){.reveal{right:16px}}
+</style>
+</head>
+<body>
+
+<!-- ÍCONES -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path fill="#c8172d" d="M12 2.5c-.3 0-.6.2-.8.5C9.6 5.6 5 11.4 5 15a7 7 0 0 0 14 0c0-3.6-4.6-9.4-6.2-12-.2-.3-.5-.5-.8-.5Z"/><path fill="#ff8a96" opacity=".5" d="M9 15.5a1 1 0 0 1-1-1c0-1.4 1-3.2 1.7-4.2a.6.6 0 0 1 1 .6c-.6 1-1.7 2.6-1.7 3.6a1 1 0 0 1 0 1Z"/></symbol>
+    <symbol id="i-ankh" viewBox="0 0 24 24"><path fill="#e6c98a" d="M12 1.8c-2.7 0-4.4 2.3-4.4 4.9 0 1.8.9 3.5 2 4.6H5.2v2.4H11v8.5h2v-8.5h5.8v-2.4h-4.4c1.1-1.1 2-2.8 2-4.6 0-2.6-1.7-4.9-4.4-4.9Zm0 2.3c1.2 0 2 1.2 2 2.7 0 1.7-1 3.3-2 4.2-1-.9-2-2.5-2-4.2 0-1.5.8-2.7 2-2.7Z"/></symbol>
+    <symbol id="i-edge" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 14.6 8.6 21.5 9.3 16.3 13.9 17.8 20.8 12 17.2 6.2 20.8 7.7 13.9 2.5 9.3 9.4 8.6Z"/></symbol>
+    <symbol id="i-bat" viewBox="0 0 64 32"><path fill="currentColor" d="M32 10c-1.2-2.2-2-4-2-6 1 1 2 1.6 2 1.6S33 5 34 4c0 2-.8 3.8-2 6Zm0 2c3-3 8-5 14-4 3 .5 6-1 8-4 2 5 6 8 10 9-4 0-7 2-8 5-2-2-5-2-7 0-2-2-5-2-7 1-2-3-6-4-10-3v0c-4-1-8 0-10 3-2-3-5-3-7-1-2-2-5-2-7 0-1-3-4-5-8-5 4-1 8-4 10-9 2 3 5 4.5 8 4 6-1 11 1 14 4Z"/></symbol>
+  </defs>
+</svg>
+
+<!-- ================= LOBBY ================= -->
+<section id="lobby">
+  <div class="brand">
+    <svg viewBox="0 0 64 32" style="color:#c8172d"><use href="#i-bat"/></svg>
+    <h1>The Elysium</h1>
+    <p>Vampire: The Eternal Struggle · cartas físicas, câmeras abertas, sangue na mesa</p>
+  </div>
+
+  <nav class="lobby-tabs" role="tablist">
+    <button class="on" data-ltab="play" role="tab">Entrar na mesa</button>
+    <button data-ltab="credits" role="tab">Créditos</button>
+  </nav>
+  <div class="lobby-grid" id="lobbyPlay">
+    <div class="frame lobby-card">
+      <h2>Seu espelho</h2>
+      <div class="preview"><video id="pv" autoplay playsinline muted></video></div>
+      <div class="stack" style="margin-top:14px">
+        <div class="row">
+          <div><label class="lbl" for="camSel">Câmera</label><select id="camSel" class="input"></select></div>
+          <div><label class="lbl" for="micSel">Microfone</label><select id="micSel" class="input"></select></div>
+        </div>
+        <div>
+          <label class="lbl">Orientação da imagem · <span id="orientTxt" style="color:var(--gold2)">normal</span></label>
+          <div style="display:flex; gap:6px; flex-wrap:wrap">
+            <button class="btn sm" data-orient="rot" title="Girar 90° no sentido horário">↻ Girar 90°</button>
+            <button class="btn sm" data-orient="fh" title="Espelhar (esquerda ↔ direita)">⇋ Espelhar</button>
+            <button class="btn sm" data-orient="fv" title="Inverter (cima ↕ baixo)">⇅ Inverter</button>
+            <button class="btn sm" data-orient="reset">Normal</button>
+          </div>
+        </div>
+        <p class="help" style="margin:0">Aponte a câmera para a sua área de jogo, de cima. Ajuste até o texto das cartas aparecer <b>legível e sem espelhamento</b> — é assim que os outros vão te ver, e é isso que o leitor de cartas usa.</p>
+      </div>
+    </div>
+
+    <div class="frame lobby-card">
+      <h2>Entrar na noite</h2>
+      <div class="stack">
+        <div><label class="lbl" for="nameIn">Nome do Matusalém</label><input id="nameIn" class="input" maxlength="24" placeholder="Ex.: Marthos"></div>
+        <button id="btnHost" class="btn blood" style="width:100%">Criar mesa (ser o anfitrião)</button>
+      </div>
+      <p class="help" id="inviteNote" hidden style="margin:14px 0 0">Você foi convidado para a mesa <b id="inviteCode" style="color:var(--gold2); letter-spacing:.15em"></b>. Digite seu nome e clique em <b>Entrar na mesa</b>.</p>
+      <div class="or" id="orSep">— ou —</div>
+      <div class="row">
+        <div><label class="lbl" for="codeIn">Código da mesa</label><input id="codeIn" class="input" maxlength="6" placeholder="ABCDE" style="text-transform:uppercase; letter-spacing:.25em; font-family:var(--fh)"></div>
+        <button id="btnJoin" class="btn" style="flex:0 0 auto">Entrar</button>
+      </div>
+      <details class="adv" style="margin-top:18px">
+        <summary>Conexão avançada (TURN)</summary>
+        <p class="help" style="margin-top:0">Se alguém não conseguir ver os vídeos (redes corporativas, 4G com NAT restrito), informe um servidor TURN. Todos da mesa devem usar o mesmo.</p>
+        <div class="stack">
+          <input id="turnUrl" class="input" placeholder="turn:seu-servidor:3478">
+          <div class="row"><input id="turnUser" class="input" placeholder="usuário"><input id="turnPass" class="input" placeholder="senha" type="password"></div>
+        </div>
+      </details>
+      <div class="orn" style="margin:20px 0 8px">Como funciona</div>
+      <ul class="help" style="padding-left:1.1em; margin:0">
+        <li>O anfitrião cria a mesa e passa o código para até 4 jogadores.</li>
+        <li>O navegador do anfitrião guarda o estado do jogo: pool, pontos, Vantagem, turnos.</li>
+        <li><b>Clique numa carta</b> no vídeo de qualquer jogador para identificá-la — ou arraste para marcar a área exata.</li>
+      </ul>
+      <p class="help" style="margin:14px 0 0; font-size:.8rem; color:var(--dim)">Versão <b id="appVer"></b></p>
+      <p class="help" id="dbStatus" style="margin:6px 0 0">Carregando o grimório de cartas…</p>
+    </div>
+  </div>
+  <div class="frame lobby-card" id="lobbyCredits" hidden style="width:min(620px,100%)">
+<div class="credits">
+      <svg viewBox="0 0 64 32" style="color:#c8172d"><use href="#i-bat"/></svg>
+      <div class="ct">The Elysium</div>
+      <div class="muted" style="font-style:italic">Mesa online de Vampire: The Eternal Struggle<br>com cartas físicas e câmeras</div>
+      <div class="orn" style="margin:20px 0 10px">Criação</div>
+      <div class="author">Marthos Freitas</div>
+      <a class="mail" href="mailto:marthosfreitas@gmail.com?subject=The%20Elysium">marthosfreitas@gmail.com</a>
+      <p class="help" style="font-size:.85rem; margin-top:8px">Sugestões, erros ou ideias? Mande um e-mail.</p>
+      <div class="orn" style="margin:20px 0 10px">Agradecimentos</div>
+      <ul class="help">
+        <li><b>KRCG</b> (Lionel Panhaleux) — banco de cartas, imagens e API de decks</li>
+        <li><b>VDB</b> (smeea) — construção e compartilhamento de decks</li>
+        <li><b>PeerJS</b> — conexão entre os jogadores</li>
+        <li><b>Tesseract.js</b> — leitura do texto das cartas</li>
+        <li><b>OpenCV.js</b> — contorno e reconhecimento das cartas</li>
+      </ul>
+      <p class="help disc">Projeto de fãs, gratuito e sem fins lucrativos. Vampire: The Eternal Struggle e as imagens das cartas pertencem aos seus respectivos detentores de direitos (Paradox Interactive / Black Chantry Productions). Este site não é afiliado a eles.</p>
+      <p class="help" style="font-size:.8rem; color:var(--dim)">Versão <span class="appVer"></span></p>
+    </div>
+  </div>
+  <footer class="sitefoot" style="width:min(1040px,100%); margin-top:26px; text-align:center; font-size:.85rem; color:var(--muted); line-height:1.8">
+    The Elysium é software livre, sob a <a href="https://github.com/MarthosM/the-elysium/blob/main/LICENSE" target="_blank" rel="noopener">licença MIT</a>
+    · <a href="https://github.com/MarthosM/the-elysium" target="_blank" rel="noopener">Código-fonte no GitHub</a>
+    · <a href="https://github.com/MarthosM/the-elysium/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener">Código de conduta</a>
+    · <a href="https://www.netlify.com" target="_blank" rel="noopener">This site is powered by Netlify</a>
+  </footer>
+</section>
+
+<!-- ================= JOGO ================= -->
+<section id="game" hidden>
+  <header class="topbar">
+    <span class="t">The Elysium</span>
+    <span class="muted" style="font-size:.9rem">Mesa <span class="code" id="roomCode" title="Copiar o link/código da mesa">—</span></span>
+    <span class="timer" id="timer" title="Tempo desde o início da partida">00:00:00</span>
+    <span class="sep"></span>
+    <span class="muted" style="font-size:.85rem"><span class="status-dot" id="netDot"></span><span id="netTxt">conectando…</span></span>
+    <select id="camSel2" class="input" style="width:auto; max-width:190px; padding:.3em .5em; font-size:.85rem" title="Trocar câmera"></select>
+    <button class="btn sm" id="btnMic">Microfone ligado</button>
+    <button class="btn sm" id="btnCam">Câmera ligada</button>
+    <button class="btn sm" id="btnLeave">Sair</button>
+  </header>
+
+  <div class="main">
+    <div class="table">
+      <div class="focusbar" id="focusBar" hidden>
+        <button class="btn sm" id="btnGrid">← Ver todas as mesas</button>
+        <span class="muted">Mesa de <b id="focusName"></b> · clique numa miniatura para trocar · teclas <b>1–5</b> escolhem a mesa · <b>Esc</b> volta à grade</span>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <p class="hint">Clique numa carta em qualquer vídeo para identificá-la · arraste para selecionar a área · clique no número do pool para digitar um valor · ⤢ maximiza uma mesa · ⛶ tela cheia · teclas 1–5 focam cada mesa · carregue seu deck na aba <b>Deck</b> para reconhecimento por imagem.</p>
+    </div>
+
+    <aside class="side">
+      <nav class="tabs">
+        <button data-tab="card" class="on">Carta</button>
+        <button data-tab="table">Mesa</button>
+        <button data-tab="deck">Deck</button>
+        <button data-tab="log">Crônica<span class="badge" id="logBadge" hidden>0</span></button>
+      </nav>
+
+      <!-- Carta -->
+      <div class="pane" id="pane-card">
+        <div class="search">
+          <label class="lbl" for="cardSearch">Buscar carta</label>
+          <input id="cardSearch" class="input" placeholder="Nome da carta…" autocomplete="off">
+          <div class="sugg" id="sugg" hidden></div>
+        </div>
+        <div id="identify"></div>
+        <div id="cardView">
+          <div class="empty">
+            <svg viewBox="0 0 64 32" style="color:#8e0b18"><use href="#i-bat"/></svg>
+            Clique numa carta sobre a mesa de qualquer jogador.<br>O nome será lido pela câmera e cruzado com o banco de cartas do VTES.
+          </div>
+        </div>
+      </div>
+
+      <!-- Mesa -->
+      <div class="pane" id="pane-table" hidden>
+        <div class="frame turnbox">
+          <div class="muted" style="font-family:var(--fh); font-size:.7rem; letter-spacing:.2em">TURNO <span id="turnNum">—</span></div>
+          <div class="who" id="turnWho">A partida não começou</div>
+          <div class="phases" id="phases"></div>
+          <div style="display:flex; gap:6px; justify-content:center">
+            <button class="btn sm" id="btnNextPhase">Próxima fase</button>
+            <button class="btn sm blood" id="btnNextTurn">Passar a vez ➜</button>
+          </div>
+        </div>
+        <div class="orn" style="margin:18px 0 6px">Assentos</div>
+        <div class="arrowinfo">Ordem de jogo: cada um caça a sua <b>presa</b> (o próximo da lista) e é caçado pelo <b>predador</b> (o anterior).</div>
+        <ul class="seats" id="seats"></ul>
+        <div id="hostCtl" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px">
+          <button class="btn sm" id="btnShuffle">Sortear assentos</button>
+          <button class="btn sm blood" id="btnStart">Iniciar partida</button>
+        </div>
+        <p class="help" id="guestNote" style="font-size:.85rem">Só o anfitrião pode sortear os assentos e (re)iniciar a partida.</p>
+        <div class="orn" style="margin:18px 0 6px">Regras rápidas</div>
+        <ul class="help" style="font-size:.88rem; padding-left:1.1em; margin:0">
+          <li>Cada Matusalém começa com 30 de pool.</li>
+          <li>Pool zerado = eliminado. O predador ganha 1 ponto de vitória e 6 de pool (aplicado automaticamente).</li>
+          <li>Fases: Destravar, Mestre, Servos, Influência, Descarte.</li>
+        </ul>
+      </div>
+
+      <!-- Deck -->
+      <div class="pane" id="pane-deck" hidden>
+        <label class="lbl" for="deckUrl">Importar do VDB ou Amaranth</label>
+        <div class="row" style="align-items:stretch">
+          <input id="deckUrl" class="input" placeholder="https://vdb.im/decks/…">
+          <button class="btn sm" id="btnDeckUrl" style="flex:0 0 auto">Importar</button>
+        </div>
+        <details class="adv" style="margin-top:10px">
+          <summary>…ou colar a lista (VDB, TWD, Lackey, “3x Nome”)</summary>
+          <textarea id="deckText" class="input" rows="7" placeholder="Crypt:&#10;2x Anson&#10;&#10;Library:&#10;6x Deflection&#10;4x Govern the Unaligned"></textarea>
+          <button class="btn sm" id="btnDeckText" style="margin-top:6px">Ler lista</button>
+        </details>
+        <p class="help" id="deckMsg" style="font-size:.85rem"></p>
+        <p class="help" style="font-size:.82rem; margin-top:0">🔒 Sua lista fica <b>só no seu navegador</b>. Quando alguém clica numa carta da sua mesa, é o seu navegador que compara a imagem com o seu deck e responde apenas qual carta está na mesa.</p>
+        <div id="deckView"></div>
+      </div>
+
+      <!-- Crônica -->
+      <div class="pane" id="pane-log" hidden>
+        <div class="log" id="log"></div>
+        <form class="chatbox" id="chatForm">
+          <input id="chatIn" class="input" placeholder="Sussurre à mesa…" autocomplete="off" maxlength="300">
+          <button class="btn sm">Enviar</button>
+        </form>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<div id="toasts"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   The Elysium — VTES por câmera
+   Rede: PeerJS (WebRTC). O anfitrião é o servidor do estado do jogo;
+   vídeo/áudio em malha (cada par se conecta diretamente).
+   Cartas: banco KRCG (static.krcg.org) + OCR com Tesseract.js.
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const APP_VERSION = '2.6 · 30/09/2026';
+const PHASES = ['Destravar','Mestre','Servos','Influência','Descarte'];
+const MAX_PLAYERS = 5;
+const START_POOL = 30;
+const HOST_PREFIX = 'the-elysium-vtes-';
+const DB_URL = 'https://static.krcg.org/data/vtes.json';
+const API = 'https://api.krcg.org';
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
+};
+
+let me = { id:null, name:'', isHost:false };
+let kicked = false;
+let peer = null, hostConn = null;
+const guestConns = new Map();   // anfitrião: peerId -> DataConnection
+const calls = new Map();        // peerId -> {call, stream}
+let localStream = null;
+let state = null;
+let inGame = false;
+let spotlight = null;
+let activeTab = 'card';
+let unread = 0;
+let lastLogLen = 0;
+
+/* ---------------- utilidades de UI ---------------- */
+function toast(msg, err=false, ms=4200){
+  const t = document.createElement('div');
+  t.className = 'toast' + (err ? ' err' : '');
+  t.innerHTML = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+function loadScript(src){
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${src}"]`)) return res();
+    const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Falha ao carregar ' + src));
+    document.head.appendChild(s);
+  });
+}
+
+/* ================= CÂMERA ================= */
+function blankStream(){
+  const c = document.createElement('canvas'); c.width = 640; c.height = 360;
+  const g = c.getContext('2d');
+  const draw = () => { g.fillStyle = '#0a0607'; g.fillRect(0,0,640,360); g.fillStyle = '#6d5f55'; g.font = 'italic 26px Georgia'; g.textAlign = 'center'; g.fillText('sem câmera', 320, 190); };
+  draw(); setInterval(draw, 1000);
+  return c.captureStream(2);
+}
+async function startMedia(camId, micId){
+  const video = { width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:24} };
+  if (camId) video.deviceId = { exact: camId };
+  const audio = micId ? { deviceId:{ exact: micId }, echoCancellation:true, noiseSuppression:true } : { echoCancellation:true, noiseSuppression:true };
+  let s = null;
+  try { s = await navigator.mediaDevices.getUserMedia({ video, audio }); }
+  catch (e) {
+    try { s = await navigator.mediaDevices.getUserMedia({ video, audio:false }); toast('Microfone indisponível — você entrará sem áudio.'); }
+    catch (e2) {
+      try { s = await navigator.mediaDevices.getUserMedia({ audio, video:false }); } catch {}
+      const b = blankStream();
+      if (s) { s.addTrack(b.getVideoTracks()[0]); } else s = b;
+      toast('Não foi possível abrir a câmera. Verifique a permissão do navegador.', true);
+    }
+  }
+  const oldRaw = rawStream;
+  rawStream = s;
+  applyOrientation();
+  if (oldRaw) oldRaw.getTracks().forEach(t => t.stop());
+  await listDevices();
+}
+/* ---- orientação da câmera: aplicada na origem, então todos (e o leitor de cartas) recebem a imagem já corrigida ---- */
+let rawStream = null;          // o que vem da câmera
+let orient = store.get('vtes.orient', { rot:0, fh:false, fv:false });
+let proc = null;               // processamento em canvas
+const ticker = (() => {        // relógio em Worker: não é pausado quando a janela perde o foco
+  let fn = null, w = null, t = null;
+  try {
+    w = new Worker(URL.createObjectURL(new Blob(['let t=null;onmessage=e=>{clearInterval(t);if(e.data>0)t=setInterval(()=>postMessage(0),e.data)}'], { type:'text/javascript' })));
+    w.onmessage = () => fn && fn();
+  } catch { w = null; }
+  return {
+    start(f, ms){ fn = f; if (w) w.postMessage(ms); else { clearInterval(t); t = setInterval(f, ms); } },
+    stop(){ fn = null; if (w) w.postMessage(0); else clearInterval(t); }
+  };
+})();
+function applyOrientation(){
+  store.set('vtes.orient', orient);
+  const vt = rawStream?.getVideoTracks()[0];
+  const identity = !orient.rot && !orient.fh && !orient.fv;
+  if (proc) { ticker.stop(); proc.out.getTracks().forEach(t => t.stop()); proc.v.srcObject = null; proc = null; }
+  let out = rawStream;
+  if (vt && !identity) {
+    const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.srcObject = new MediaStream([vt]); v.play().catch(()=>{});
+    const c = document.createElement('canvas'); c.width = 640; c.height = 360;
+    const g = c.getContext('2d');
+    const draw = () => {
+      const w = v.videoWidth, h = v.videoHeight; if (!w) return;
+      const side = orient.rot % 180 !== 0;
+      const cw = side ? h : w, ch = side ? w : h;
+      if (c.width !== cw || c.height !== ch) { c.width = cw; c.height = ch; }
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.translate(cw / 2, ch / 2);
+      g.rotate(orient.rot * Math.PI / 180);
+      g.scale(orient.fh ? -1 : 1, orient.fv ? -1 : 1);
+      g.drawImage(v, -w / 2, -h / 2);
+    };
+    const fps = vt.getSettings?.().frameRate || 24;
+    const cs = c.captureStream(Math.min(30, fps));
+    ticker.start(draw, Math.round(1000 / Math.min(30, fps)));
+    proc = { v, c, out:cs };
+    out = new MediaStream([cs.getVideoTracks()[0], ...rawStream.getAudioTracks()]);
+  }
+  localStream = out;
+  $('#pv').srcObject = out;
+  for (const { call } of calls.values()) {
+    const pc = call.peerConnection; if (!pc) continue;
+    for (const sender of pc.getSenders()) {
+      const nt = out.getTracks().find(t => t.kind === sender.track?.kind);
+      if (nt && sender.track !== nt) sender.replaceTrack(nt).catch(()=>{});
+    }
+  }
+  applyTrackToggles();
+  renderOrientUI();
+  if (inGame) renderTiles();
+}
+function orientLabel(){
+  const parts = [];
+  if (orient.rot) parts.push(orient.rot + '°');
+  if (orient.fh) parts.push('espelhada');
+  if (orient.fv) parts.push('invertida');
+  return parts.length ? parts.join(' · ') : 'normal';
+}
+function renderOrientUI(){ const el = $('#orientTxt'); if (el) el.textContent = orientLabel(); }
+function orientAct(a){
+  if (a === 'rot') orient.rot = (orient.rot + 90) % 360;
+  if (a === 'fh') orient.fh = !orient.fh;
+  if (a === 'fv') orient.fv = !orient.fv;
+  if (a === 'reset') orient = { rot:0, fh:false, fv:false };
+  applyOrientation();
+}
+
+async function listDevices(){
+  let devs = [];
+  try { devs = await navigator.mediaDevices.enumerateDevices(); } catch {}
+  const curCam = rawStream?.getVideoTracks()[0]?.getSettings?.().deviceId;
+  const curMic = rawStream?.getAudioTracks()[0]?.getSettings?.().deviceId;
+  const cams = devs.filter(d => d.kind === 'videoinput'), mics = devs.filter(d => d.kind === 'audioinput');
+  const opt = (list, cur, label) => list.map((d,i) => `<option value="${esc(d.deviceId)}" ${d.deviceId===cur?'selected':''}>${esc(d.label || label + ' ' + (i+1))}</option>`).join('');
+  $('#camSel').innerHTML = opt(cams, curCam, 'Câmera') || '<option>nenhuma</option>';
+  $('#camSel2').innerHTML = $('#camSel').innerHTML;
+  $('#micSel').innerHTML = opt(mics, curMic, 'Microfone') || '<option>nenhum</option>';
+}
+let micOn = true, camOn = true;
+function applyTrackToggles(){
+  localStream?.getAudioTracks().forEach(t => t.enabled = micOn);
+  localStream?.getVideoTracks().forEach(t => t.enabled = camOn);
+  $('#btnMic').textContent = micOn ? 'Microfone ligado' : 'Microfone mudo';
+  $('#btnCam').textContent = camOn ? 'Câmera ligada' : 'Câmera desligada';
+  $('#btnMic').classList.toggle('blood', !micOn);
+  $('#btnCam').classList.toggle('blood', !camOn);
+}
+
+/* ================= REDE ================= */
+function peerOpts(){
+  const ice = [{ urls:'stun:stun.l.google.com:19302' }, { urls:'stun:stun1.l.google.com:19302' }, { urls:'stun:global.stun.twilio.com:3478' }];
+  const u = $('#turnUrl').value.trim();
+  if (u) ice.push({ urls:u, username:$('#turnUser').value.trim(), credential:$('#turnPass').value });
+  store.set('vtes.turn', { u, user:$('#turnUser').value.trim(), pass:$('#turnPass').value });
+  return { debug:1, config:{ iceServers: ice } };
+}
+function genCode(){
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:5}, () => A[Math.floor(Math.random()*A.length)]).join('');
+}
+function requireName(){
+  const n = $('#nameIn').value.trim();
+  if (!n) { toast('Diga seu nome, Matusalém.', true); $('#nameIn').focus(); return null; }
+  store.set('vtes.name', n);
+  return n;
+}
+function checkPeer(){
+  if (typeof Peer === 'undefined') { toast('Não foi possível carregar a biblioteca de conexão (PeerJS). Verifique a internet.', true); return false; }
+  return true;
+}
+function setNet(on, txt){ $('#netDot').classList.toggle('on', on); $('#netTxt').textContent = txt; }
+
+function createRoom(tries=0){
+  if ($('#btnHost').hidden) return;   // modo convite
+  const name = requireName(); if (!name || !checkPeer()) return;
+  me.name = name; me.isHost = true;
+  const code = genCode();
+  peer = new Peer(HOST_PREFIX + code, peerOpts());
+  peer.on('open', id => {
+    me.id = id;
+    state = {
+      code, players:[], order:[], turn:null, turnNum:0, phase:0, edge:null,
+      started:false, startedAt:null, log:[]
+    };
+    addPlayer(id, name);
+    sysLog(`${name} abriu a mesa ${code}.`);
+    enterGame();
+    setNet(true, 'anfitrião');
+    broadcast();
+  });
+  peer.on('connection', handleGuestConn);
+  peer.on('call', handleIncomingCall);
+  peer.on('disconnected', () => { setNet(false, 'reconectando…'); try{ peer.reconnect(); }catch{} });
+  peer.on('error', err => {
+    if (err.type === 'unavailable-id' && tries < 3) { peer.destroy(); return createRoom(tries+1); }
+    if (err.type === 'peer-unavailable') return; // chamada para alguém que saiu
+    toast('Erro de conexão: ' + esc(err.type || err.message), true);
+  });
+}
+
+function joinRoom(){
+  const name = requireName(); if (!name || !checkPeer()) return;
+  const code = $('#codeIn').value.trim().toUpperCase();
+  if (code.length < 4) { toast('Informe o código da mesa.', true); return; }
+  me.name = name; me.isHost = false;
+  peer = new Peer(undefined, peerOpts());
+  peer.on('open', id => {
+    me.id = id;
+    hostConn = peer.connect(HOST_PREFIX + code, { reliable:true, metadata:{ name } });
+    const failT = setTimeout(() => { if (!inGame) toast('A mesa não respondeu. Confira o código.', true); }, 12000);
+    hostConn.on('open', () => { clearTimeout(failT); hostConn.send({ t:'hello', name }); });
+    hostConn.on('data', onHostMsg);
+    hostConn.on('close', () => { if (kicked) return; setNet(false, 'anfitrião saiu'); toast('A conexão com o anfitrião foi perdida.', true, 8000); });
+  });
+  peer.on('call', handleIncomingCall);
+  peer.on('disconnected', () => { setNet(false, 'reconectando…'); try{ peer.reconnect(); }catch{} });
+  peer.on('error', err => {
+    if (err.type === 'peer-unavailable') {
+      if (!inGame) toast('Mesa não encontrada. Confira o código.', true);
+      return;
+    }
+    toast('Erro de conexão: ' + esc(err.type || err.message), true);
+  });
+}
+
+/* ---- anfitrião ---- */
+function handleGuestConn(conn){
+  conn.on('data', msg => {
+    if (!msg || typeof msg !== 'object') return;
+    if (msg.t === 'hello') {
+      const name = String(msg.name || 'Anônimo').slice(0, 24);
+      const back = state.players.find(p => p.name === name && !p.online);
+      if (back) {
+        renameId(back.id, conn.peer); back.online = true;
+        sysLog(`${name} voltou à mesa.`);
+      } else {
+        if (state.players.filter(p => p.online).length >= MAX_PLAYERS) { conn.send({ t:'full' }); setTimeout(() => conn.close(), 800); return; }
+        addPlayer(conn.peer, name);
+        sysLog(`${name} sentou-se à mesa.`);
+      }
+      guestConns.set(conn.peer, conn);
+      broadcast();
+    } else if (msg.t === 'snapReq' || msg.t === 'snapRes') {
+      if (msg.to === me.id) onP2P(msg); else guestConns.get(msg.to)?.send(msg);
+    } else if (msg.t === 'act') {
+      applyAction(msg.a || {}, conn.peer);
+      broadcast();
+    }
+  });
+  conn.on('close', () => {
+    guestConns.delete(conn.peer);
+    const p = state.players.find(p => p.id === conn.peer);
+    if (p) { p.online = false; sysLog(`${p.name} perdeu a conexão.`); broadcast(); }
+  });
+}
+function kickPlayer(id){
+  if (!me.isHost || id === me.id) return;
+  const p = P(id); if (!p) return;
+  const conn = guestConns.get(id);
+  try { conn?.send({ t:'kicked' }); } catch {}
+  setTimeout(() => { try { conn?.close(); } catch {} }, 500);
+  guestConns.delete(id);
+  const c = calls.get(id); if (c) { try { c.call.close(); } catch {} calls.delete(id); }
+  if (state.turn === id) { const nx = nextAliveAfter(id); state.turn = nx && nx !== id ? nx : null; state.phase = 0; }
+  if (state.edge === id) state.edge = null;
+  state.players = state.players.filter(q => q.id !== id);
+  state.order = state.order.filter(x => x !== id);
+  if (spotlight === id) spotlight = null;
+  sysLog(`${me.name} removeu ${p.name} da mesa.`);
+  broadcast();
+}
+function addPlayer(id, name){
+  state.players.push({ id, name, pool:START_POOL, vp:0, online:true, ousted:false, rot:0 });
+  state.order.push(id);
+}
+function renameId(oldId, newId){
+  state.players.forEach(p => { if (p.id === oldId) p.id = newId; });
+  state.order = state.order.map(x => x === oldId ? newId : x);
+  if (state.turn === oldId) state.turn = newId;
+  if (state.edge === oldId) state.edge = newId;
+}
+function broadcast(){
+  if (!me.isHost) return;
+  if (state.log.length > 200) state.log = state.log.slice(-200);
+  const msg = { t:'state', s:state };
+  for (const c of guestConns.values()) { try { if (c.open) c.send(msg); } catch {} }
+  render();
+  syncCalls();
+}
+function dispatch(a){
+  if (!state) return;
+  if (me.isHost) { applyAction(a, me.id); broadcast(); }
+  else if (hostConn?.open) hostConn.send({ t:'act', a });
+  else toast('Sem conexão com o anfitrião.', true);
+}
+
+/* ---- convidado ---- */
+function onHostMsg(msg){
+  if (!msg) return;
+  if (msg.t === 'state') {
+    state = msg.s;
+    if (!inGame) { enterGame(); setNet(true, 'conectado'); }
+    render();
+    syncCalls();
+  } else if (msg.t === 'snapReq' || msg.t === 'snapRes') {
+    onP2P(msg);
+  } else if (msg.t === 'kicked') {
+    kicked = true;
+    try { sessionStorage.setItem('vtes.kicked', '1'); } catch {}
+    try { peer?.destroy(); } catch {}
+    localStream?.getTracks().forEach(t => t.stop());
+    location.replace(location.pathname);
+  } else if (msg.t === 'full') {
+    toast('Esta mesa já está cheia (5 jogadores).', true);
+  }
+}
+
+/* ---- vídeo em malha ---- */
+function syncCalls(){
+  if (!state || !peer || peer.destroyed) return;
+  const online = new Set(state.players.filter(p => p.online).map(p => p.id));
+  for (const id of online) {
+    if (id === me.id || calls.has(id)) continue;
+    if (me.id < id) placeCall(id);    // o menor id liga — evita chamada dupla
+  }
+  for (const [id, c] of calls) if (!online.has(id)) { try { c.call.close(); } catch {} calls.delete(id); }
+}
+function placeCall(id){
+  try { setupCall(peer.call(id, localStream)); } catch (e) { console.warn(e); }
+}
+function handleIncomingCall(call){
+  const prev = calls.get(call.peer);
+  if (prev) { try { prev.call.close(); } catch {} }
+  call.answer(localStream);
+  setupCall(call);
+}
+function setupCall(call){
+  if (!call) return;
+  calls.set(call.peer, { call, stream:null });
+  call.on('stream', s => { const c = calls.get(call.peer); if (c && c.call === call) { c.stream = s; renderTiles(); } });
+  const drop = () => { const c = calls.get(call.peer); if (c && c.call === call) { calls.delete(call.peer); renderTiles(); } };
+  call.on('close', drop);
+  call.on('error', drop);
+  const watch = () => {
+    const pc = call.peerConnection; if (!pc) return setTimeout(watch, 300);
+    pc.addEventListener('iceconnectionstatechange', () => {
+      if (pc.iceConnectionState === 'failed') { try { call.close(); } catch {} drop(); }
+    });
+  };
+  watch();
+}
+setInterval(() => { if (inGame) syncCalls(); }, 5000);
+
+/* ================= REGRAS / ESTADO ================= */
+const P = id => state.players.find(p => p.id === id);
+const nameOf = id => P(id)?.name || '?';
+function aliveOrder(){ return state.order.filter(id => { const p = P(id); return p && !p.ousted; }); }
+function preyOf(id){ const a = aliveOrder(); const i = a.indexOf(id); return a.length > 1 && i >= 0 ? a[(i+1) % a.length] : null; }
+function predatorOf(id){ const a = aliveOrder(); const i = a.indexOf(id); return a.length > 1 && i >= 0 ? a[(i-1+a.length) % a.length] : null; }
+function sysLog(text){ state.log.push({ ts:Date.now(), k:'sys', text }); }
+
+function applyAction(a, from){
+  const who = nameOf(from);
+  const p = a.id ? P(a.id) : null;
+  switch (a.k) {
+    case 'pool': case 'poolSet': {
+      if (!p) return;
+      const before = p.pool;
+      p.pool = Math.max(0, Math.min(999, a.k === 'pool' ? p.pool + (a.d|0) : (a.v|0)));
+      if (p.pool === before) return;
+      sysLog(`${who}: pool de ${p.name} ${before} → ${p.pool}`);
+      if (p.pool === 0 && !p.ousted) oust(p);
+      break;
+    }
+    case 'vp': {
+      if (!p) return;
+      const before = p.vp; p.vp = Math.max(0, Math.round((p.vp + (+a.d||0)) * 2) / 2);
+      if (p.vp !== before) sysLog(`${who}: pontos de vitória de ${p.name} ${before} → ${p.vp}`);
+      break;
+    }
+    case 'edge': {
+      if (!p) return;
+      state.edge = state.edge === p.id ? null : p.id;
+      sysLog(state.edge ? `${p.name} tomou a Vantagem.` : `A Vantagem ficou sem dono.`);
+      break;
+    }
+    case 'phase': state.phase = Math.max(0, Math.min(4, a.p|0)); break;
+    case 'nextPhase':
+      if (!state.turn) return;
+      if (state.phase < 4) { state.phase++; sysLog(`${nameOf(state.turn)} — fase de ${PHASES[state.phase]}.`); }
+      else nextTurn();
+      break;
+    case 'nextTurn': if (state.turn) nextTurn(); break;
+    case 'setTurn': if (p && !p.ousted) { state.turn = p.id; state.phase = 0; sysLog(`${who} passou o turno para ${p.name}.`); } break;
+    case 'seat': {
+      if (state.started && from !== me.id) return;
+      const i = state.order.indexOf(a.id), j = i + (a.d|0);
+      if (i < 0 || j < 0 || j >= state.order.length) return;
+      [state.order[i], state.order[j]] = [state.order[j], state.order[i]];
+      break;
+    }
+    case 'shuffle': {
+      if (from !== state.players[0]?.id && from !== me.id) return;
+      for (let i = state.order.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [state.order[i], state.order[j]] = [state.order[j], state.order[i]]; }
+      sysLog(`Assentos sorteados: ${state.order.map(nameOf).join(' → ')}.`);
+      break;
+    }
+    case 'start': {
+      if (from !== me.id || !me.isHost) return;
+      state.players.forEach(q => { q.pool = START_POOL; q.vp = 0; q.ousted = false; });
+      state.order = state.order.filter(id => P(id)?.online);
+      state.players = state.players.filter(q => state.order.includes(q.id));
+      state.started = true; state.startedAt = Date.now(); state.turnNum = 1; state.phase = 0;
+      state.turn = state.order[0]; state.edge = null;
+      sysLog(`A partida começou. Ordem: ${state.order.map(nameOf).join(' → ')}. ${nameOf(state.turn)} abre a noite.`);
+      break;
+    }
+    case 'revive': if (p && p.ousted) { p.ousted = false; if (p.pool === 0) p.pool = 1; sysLog(`${who} desfez a eliminação de ${p.name}.`); } break;
+    case 'rot': if (p && from === p.id) p.rot = p.rot ? 0 : 180; break;
+    case 'deckInfo': if (p && from === p.id) p.deck = !!a.has; break;
+    case 'chat': { const t = String(a.text || '').trim().slice(0, 300); if (t) state.log.push({ ts:Date.now(), k:'chat', who, text:t }); break; }
+    case 'reveal': {
+      const c = a.card || {};
+      state.log.push({ ts:Date.now(), k:'card', who, card:{ name:String(c.name||'').slice(0,80), url:String(c.url||'').slice(0,200) } });
+      break;
+    }
+  }
+}
+function nextTurn(){
+  const a = aliveOrder(); if (!a.length) return;
+  const i = a.indexOf(state.turn);
+  const nxt = i < 0 ? nextAliveAfter(state.turn) : a[(i+1) % a.length];
+  state.turn = nxt; state.phase = 0; state.turnNum = (state.turnNum||0) + 1;
+  sysLog(`Turno ${state.turnNum}: ${nameOf(nxt)}.`);
+}
+function nextAliveAfter(id){
+  const o = state.order, i = o.indexOf(id);
+  for (let k = 1; k <= o.length; k++) { const c = o[(i+k) % o.length]; if (!P(c)?.ousted) return c; }
+  return null;
+}
+function oust(p){
+  const pred = predatorOf(p.id);
+  const wasTurn = state.turn === p.id;
+  p.ousted = true;
+  sysLog(`☠ ${p.name} foi eliminado.`);
+  if (pred) { const q = P(pred); q.vp += 1; q.pool += 6; sysLog(`${q.name} (predador) ganha 1 ponto de vitória e 6 de pool.`); }
+  if (state.edge === p.id) state.edge = null;
+  if (wasTurn) { state.turn = nextAliveAfter(p.id); state.phase = 0; }
+  const alive = aliveOrder();
+  if (alive.length === 1 && state.started) {
+    const w = P(alive[0]); w.vp += 1;
+    sysLog(`${w.name} é o último de pé e ganha 1 ponto de vitória. Fim da partida.`);
+  }
+}
+
+/* ================= RENDER ================= */
+function enterGame(){
+  inGame = true;
+  $('#lobby').hidden = true; $('#game').hidden = false;
+  $('#roomCode').textContent = state.code || $('#codeIn').value.trim().toUpperCase();
+  history.replaceState(null, '', '#' + (state.code || ''));
+  listDevices();
+  setTimeout(() => { sendDeckInfo(); loadCV().catch(() => {}); }, 1500);
+  if (me.isHost) window.addEventListener('beforeunload', e => { e.preventDefault(); e.returnValue = ''; });
+}
+function render(){
+  if (!state) return;
+  $('#roomCode').textContent = state.code;
+  renderTiles(); renderTable(); renderLog();
+}
+const tileEls = new Map();
+function renderTiles(){
+  if (!state) return;
+  const box = $('#tiles');
+  const ids = state.order.filter(id => P(id));
+  if (spotlight && !ids.includes(spotlight)) spotlight = null;
+  box.classList.toggle('focus', !!spotlight);
+  // grade: todas as mesas cabem na tela (5 jogadores = 3 + 2)
+  box.style.setProperty('--cols', ids.length <= 1 ? 1 : ids.length <= 4 ? 2 : 3);
+  $('#focusBar').hidden = !spotlight;
+  if (spotlight) $('#focusName').textContent = P(spotlight).name;
+  for (const [id, el] of tileEls) if (!ids.includes(id)) { el.remove(); tileEls.delete(id); }
+  ids.forEach(id => {
+    const p = P(id);
+    let el = tileEls.get(id);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'tile'; el.dataset.id = id;
+      el.innerHTML = `<div class="vidwrap"><video autoplay playsinline></video><div class="nocam">aguardando vídeo…</div><div class="sel"></div></div><div class="plate"></div>`;
+      bindIdentify(el.querySelector('.vidwrap'), id);
+      tileEls.set(id, el);
+    }
+    box.appendChild(el); // mantém a ordem dos assentos
+    const v = el.querySelector('video');
+    const stream = id === me.id ? localStream : calls.get(id)?.stream || null;
+    if (v.srcObject !== stream) { v.srcObject = stream; v.muted = id === me.id; v.play?.().catch(()=>{}); }
+    el.querySelector('.nocam').hidden = !!stream || !!p.ousted;
+    el.classList.toggle('turn', state.turn === id);
+    el.classList.toggle('spot', spotlight === id);
+    if (spotlight === id) box.prepend(el);
+    el.classList.toggle('ousted', !!p.ousted);
+    el.classList.toggle('offline', !p.online);
+    let om = el.querySelector('.oustmark');
+    if (p.ousted && !om) { om = document.createElement('div'); om.className = 'oustmark'; om.textContent = 'ELIMINADO'; el.querySelector('.vidwrap').appendChild(om); }
+    if (!p.ousted && om) om.remove();
+    const plate = el.querySelector('.plate');
+    if (!plate.querySelector('input')) plate.innerHTML = plateHTML(p);
+  });
+}
+function setFocus(id){
+  spotlight = id && P(id) ? id : null;
+  renderTiles();
+  if (spotlight) window.scrollTo({ top:0, behavior:'smooth' });
+}
+function toggleFull(id){
+  const el = tileEls.get(id); if (!el) return;
+  if (document.fullscreenElement) document.exitFullscreen?.();
+  else el.requestFullscreen?.().catch(() => toast('O navegador não permitiu tela cheia.', true));
+}
+document.addEventListener('keydown', e => {
+  if (!inGame || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target.closest('input,textarea,select')) return;
+  if (e.key === 'Escape' && !document.fullscreenElement && spotlight) { setFocus(null); return; }
+  if (/^[1-5]$/.test(e.key)) { const id = state.order[+e.key - 1]; if (id) setFocus(spotlight === id ? null : id); }
+  if (e.key === '0') setFocus(null);
+});
+$('#btnGrid').onclick = () => setFocus(null);
+function roleOf(id){
+  if (id === me.id) return '<span class="chip gold">você</span>';
+  if (preyOf(me.id) === id && predatorOf(me.id) === id) return '<span class="chip red">presa · predador</span>';
+  if (preyOf(me.id) === id) return '<span class="chip red">sua presa</span>';
+  if (predatorOf(me.id) === id) return '<span class="chip">seu predador</span>';
+  return '';
+}
+function plateHTML(p){
+  const isMe = p.id === me.id;
+  return `
+    <div class="pname">
+      ${state.turn === p.id ? '<span class="turnmark" title="Turno atual">⚜</span>' : ''}
+      <span class="n">${esc(p.name)}</span> ${roleOf(p.id)}
+      ${p.deck ? '<span class="chip gold" title="Deck carregado: as cartas desta mesa também são reconhecidas pela imagem">deck</span>' : ''}
+      ${state.edge === p.id ? '<svg class="edge" width="18" height="18" aria-label="Vantagem"><title>Tem a Vantagem</title><use href="#i-edge"/></svg>' : ''}
+    </div>
+    <div class="ctr pool" title="Pool">
+      <button data-act="pool" data-d="-1" aria-label="Menos pool">−</button>
+      <svg><use href="#i-drop"/></svg><b data-act="editpool">${p.pool}</b>
+      <button data-act="pool" data-d="1" aria-label="Mais pool">+</button>
+    </div>
+    <div class="ctr vp" title="Pontos de vitória">
+      <button data-act="vp" data-d="-0.5" aria-label="Menos pontos">−</button>
+      <svg><use href="#i-ankh"/></svg><b>${p.vp}</b>
+      <button data-act="vp" data-d="1" aria-label="Mais pontos">+</button>
+    </div>
+    <div class="tools">
+      <button class="btn icon" data-act="edge" title="${state.edge === p.id ? 'Remover a Vantagem' : 'Dar a Vantagem'}"><svg width="14" height="14" style="color:var(--gold2)"><use href="#i-edge"/></svg></button>
+      <button class="btn icon" data-act="spot" title="${spotlight === p.id ? 'Voltar à grade' : 'Maximizar esta mesa'}">${spotlight === p.id ? '⤡' : '⤢'}</button>
+      <button class="btn icon" data-act="full" title="Tela cheia">⛶</button>
+      ${me.isHost && !isMe ? '<button class="btn icon" data-act="kick" title="Remover este jogador da mesa" style="color:#ff9aa6">✕</button>' : ''}
+      ${isMe ? `<button class="btn icon" data-act="orot" title="Girar minha câmera 90° (${orientLabel()})">↻</button><button class="btn icon" data-act="ofh" title="Espelhar minha câmera">⇋</button><button class="btn icon" data-act="ofv" title="Inverter minha câmera (cima/baixo)">⇅</button>` : ''}
+      ${p.ousted ? '<button class="btn icon" data-act="revive" title="Desfazer eliminação">↺</button>' : ''}
+    </div>`;
+}
+$('#tiles').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const id = b.closest('.tile')?.dataset.id; const act = b.dataset.act;
+  if (act === 'pool') dispatch({ k:'pool', id, d:+b.dataset.d });
+  else if (act === 'vp') dispatch({ k:'vp', id, d: +b.dataset.d < 0 ? -1 : 1 });
+  else if (act === 'edge') dispatch({ k:'edge', id });
+  else if (act === 'orot') orientAct('rot');
+  else if (act === 'ofh') orientAct('fh');
+  else if (act === 'ofv') orientAct('fv');
+  else if (act === 'revive') dispatch({ k:'revive', id });
+  else if (act === 'spot') setFocus(spotlight === id ? null : id);
+  else if (act === 'full') toggleFull(id);
+  else if (act === 'kick') { if (confirm(`Remover ${P(id)?.name || 'este jogador'} da mesa? A tela dele some para todos.`)) kickPlayer(id); }
+  else if (act === 'editpool') {
+    const inp = document.createElement('input'); inp.type = 'number'; inp.value = P(id).pool;
+    b.replaceWith(inp); inp.focus(); inp.select();
+    let fin = false;
+    const done = ok => { if (fin) return; fin = true; if (ok && inp.value !== '') dispatch({ k:'poolSet', id, v:+inp.value }); inp.remove(); renderTiles(); };
+    inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') done(true); if (ev.key === 'Escape') done(false); });
+    inp.addEventListener('blur', () => done(true), { once:true });
+  }
+});
+
+function renderTable(){
+  const t = state.turn ? P(state.turn) : null;
+  $('#turnWho').textContent = t ? t.name : (state.started ? '—' : 'A partida não começou');
+  $('#turnNum').textContent = state.started ? state.turnNum : '—';
+  $('#phases').innerHTML = PHASES.map((ph, i) => `<button data-p="${i}" class="${state.turn && state.phase === i ? 'on' : ''}">${ph}</button>`).join('');
+  $('#seats').innerHTML = state.order.map((id, i) => {
+    const p = P(id); if (!p) return '';
+    return `<li class="${p.ousted ? 'dead' : ''}" data-id="${esc(id)}">
+      <span class="nm">${esc(p.name)} ${p.online ? '' : '<span class="chip red">off</span>'}</span>
+      <span class="chip" title="Pool / pontos">${p.pool} · ${p.vp} PV</span>
+      <button class="btn icon" data-s="-1" ${i===0?'disabled':''} title="Subir">▲</button>
+      <button class="btn icon" data-s="1" ${i===state.order.length-1?'disabled':''} title="Descer">▼</button>
+      <button class="btn icon" data-turn="1" title="Dar o turno">⚜</button>
+    </li>`;
+  }).join('');
+  $('#hostCtl').hidden = !me.isHost; $('#guestNote').hidden = me.isHost;
+  $('#btnStart').textContent = state.started ? 'Reiniciar partida' : 'Iniciar partida';
+}
+$('#phases').addEventListener('click', e => { const b = e.target.closest('button'); if (b && state.turn) dispatch({ k:'phase', p:+b.dataset.p }); });
+$('#seats').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const id = b.closest('li').dataset.id;
+  if (b.dataset.s) dispatch({ k:'seat', id, d:+b.dataset.s });
+  if (b.dataset.turn) dispatch({ k:'setTurn', id });
+});
+$('#btnNextPhase').onclick = () => dispatch({ k:'nextPhase' });
+$('#btnNextTurn').onclick = () => dispatch({ k:'nextTurn' });
+$('#btnShuffle').onclick = () => dispatch({ k:'shuffle' });
+$('#btnStart').onclick = () => {
+  if (state.started && !confirm('Reiniciar a partida? Pool e pontos voltam ao início.')) return;
+  dispatch({ k:'start' });
+};
+
+function fmtTime(ts){ const d = new Date(ts); return d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }); }
+function renderLog(){
+  const L = state.log;
+  const box = $('#log');
+  const atBottom = box.parentElement.scrollTop + box.parentElement.clientHeight >= box.parentElement.scrollHeight - 30;
+  box.innerHTML = L.map((e, i) => {
+    const ts = `<span class="ts">${fmtTime(e.ts)}</span>`;
+    if (e.k === 'chat') return `<div class="e chat">${ts}<b>${esc(e.who)}:</b> ${esc(e.text)}</div>`;
+    if (e.k === 'card') return `<div class="e card" data-card="${esc(e.card.name)}">${e.card.url ? `<img src="${esc(e.card.url)}" alt="">` : ''}<div>${ts}<b style="font-family:var(--fh);font-size:.85rem;color:var(--gold2)">${esc(e.who)}</b> revelou <i>${esc(e.card.name)}</i></div></div>`;
+    return `<div class="e sys">${ts}${esc(e.text)}</div>`;
+  }).join('');
+  if (atBottom || activeTab !== 'log') box.parentElement.scrollTop = box.parentElement.scrollHeight;
+  // novidades
+  const lastTs = L.length ? L[L.length-1].ts : 0;
+  if (renderLog.lastTs && lastTs > renderLog.lastTs) {
+    const fresh = L.filter(e => e.ts > renderLog.lastTs);
+    fresh.filter(e => e.k === 'card' && e.who !== me.name).forEach(e => showReveal(e));
+    fresh.filter(e => e.k === 'chat' && e.who !== me.name).forEach(e => toast(`<b>${esc(e.who)}:</b> ${esc(e.text)}`));
+    if (activeTab !== 'log') { unread += fresh.length; $('#logBadge').textContent = unread; $('#logBadge').hidden = false; }
+  }
+  renderLog.lastTs = lastTs;
+}
+$('#log').addEventListener('click', e => { const c = e.target.closest('[data-card]'); if (c) { showTab('card'); openCardByName(c.dataset.card); } });
+function showReveal(e){
+  const r = document.createElement('div'); r.className = 'reveal';
+  r.innerHTML = `${e.card.url ? `<img src="${esc(e.card.url)}" alt="">` : ''}<div>${esc(e.who)} revela <b>${esc(e.card.name)}</b></div>`;
+  document.body.appendChild(r); setTimeout(() => r.remove(), 5000);
+}
+$('#chatForm').addEventListener('submit', e => { e.preventDefault(); const t = $('#chatIn').value.trim(); if (t) dispatch({ k:'chat', text:t }); $('#chatIn').value = ''; });
+
+function showTab(t){
+  activeTab = t;
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  ['card','table','deck','log'].forEach(x => $('#pane-' + x).hidden = x !== t);
+  if (t === 'log') { unread = 0; $('#logBadge').hidden = true; const p = $('#pane-log'); p.scrollTop = p.scrollHeight; }
+}
+$$('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
+setInterval(() => {
+  if (!state?.startedAt) return;
+  const s = Math.floor((Date.now() - state.startedAt) / 1000);
+  $('#timer').textContent = [s/3600, (s%3600)/60, s%60].map(x => String(Math.floor(x)).padStart(2,'0')).join(':');
+}, 1000);
+
+/* ================= BANCO DE CARTAS ================= */
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+function grams(s){ const t = ' ' + s + ' '; const g = new Set(); for (let i = 0; i < t.length - 2; i++) g.add(t.substr(i, 3)); return g; }
+function inter(a, b){ let n = 0; const [x, y] = a.size < b.size ? [a, b] : [b, a]; for (const g of x) if (y.has(g)) n++; return n; }
+
+let DB = null;       // { cards:[], groups: Map(normName -> {title, cards, keys:[{grams,n}], text}) }
+async function loadDB(){
+  const st = $('#dbStatus');
+  try {
+    const r = await fetch(DB_URL, { cache:'force-cache' });
+    if (!r.ok) throw new Error(r.status);
+    const raw = await r.json();
+    buildDB(raw);
+    st.innerHTML = `Grimório carregado: <b>${DB.cards.length}</b> cartas (fonte: KRCG).`;
+    if (myDeck) setDeck(myDeck);
+  } catch (e) {
+    console.warn('DB', e);
+    st.innerHTML = 'Não consegui baixar o banco completo de cartas; a identificação vai usar a API online da KRCG.';
+    if (myDeck) setDeck(myDeck);
+  }
+}
+function buildDB(raw){
+  const groups = new Map();
+  const cards = raw.map(c => {
+    const i18n = c.i18n || c._i18n || {};
+    const pt = i18n['pt-BR'] || i18n['pt'] || null;
+    return {
+      id:c.id, name:c.name, title:c.printed_name || c.name, url:c.url, types:c.types || [], clans:c.clans || [],
+      capacity:c.capacity, group:c.group, disciplines:c.disciplines || [], text:c.card_text || '',
+      pool:c.pool_cost, blood:c.blood_cost, conviction:c.conviction_cost, adv:c.adv, sect:c.sect, title2:c.title,
+      pt, altNames:[...(c.name_variants || []), ...Object.values(i18n).map(v => v && v.name).filter(Boolean)]
+    };
+  });
+  for (const c of cards) {
+    const k = norm(c.title);
+    let g = groups.get(k);
+    if (!g) {
+      g = { title:c.title, cards:[], keys:[], text:null };
+      groups.set(k, g);
+      const names = new Set([c.title, ...c.altNames.filter(n => !/\(G\d|ADV/i.test(n))]);
+      for (const n of names) { const nn = norm(n); if (nn.length >= 2) g.keys.push({ n:nn, g:grams(nn) }); }
+      const tt = norm(c.text).slice(0, 320);
+      g.text = tt.length > 60 ? grams(tt) : null;
+    }
+    g.cards.push(c);
+  }
+  const byId = new Map(), byName = new Map();
+  const put = (k, c) => { k = norm(k); if (k && !byName.has(k)) byName.set(k, c); };
+  for (const c of cards) {
+    byId.set(c.id, c);
+    put(c.name, c);
+    for (const n of c.altNames) put(n, c);
+  }
+  for (const g of groups.values()) {
+    const c = g.cards.find(v => !v.adv) || g.cards[0];
+    put(g.title, c);
+    const m = g.title.match(/^(The|A|An)\s+(.+)$/i); if (m) put(`${m[2]}, ${m[1]}`, c);  // "Unmasking, The"
+  }
+  DB = { cards, groups, byId, byName };
+}
+function scoreGroups(lines, fullText){
+  // candidatos: linhas, pares de linhas, linhas sem lixo nas pontas
+  const cands = new Map(); // texto -> peso
+  const add = (s, w) => { if (s.length >= 3 && (cands.get(s) || 0) < w) cands.set(s, w); };
+  const L = lines.map(o => ({ s:norm(o.s), w:o.w })).filter(o => o.s.replace(/ /g,'').length >= 3);
+  L.forEach((o, i) => {
+    const l = o.s; add(l, o.w);
+    const words = l.split(' ').filter(w => w.length > 1 || /\d/.test(w));
+    if (words.length) add(words.join(' '), o.w);
+    if (L[i+1]) add(l + ' ' + L[i+1].s, o.w * 0.95);
+    for (let a = 0; a < words.length; a++) for (let b = a + 1; b <= Math.min(words.length, a + 5); b++) add(words.slice(a, b).join(' '), o.w);
+  });
+  const cg = [...cands].map(([s, w]) => ({ s, w, g:grams(s) }));
+  const fullG = grams(norm(fullText).slice(0, 1500));
+  const out = [];
+  for (const [k, g] of DB.groups) {
+    let best = 0;
+    for (const key of g.keys) {
+      for (const c of cg) {
+        const i = inter(c.g, key.g);
+        if (!i) continue;
+        const dice = 2 * i / (c.g.size + key.g.size);
+        const lenPen = Math.min(1, key.n.length / 6); // nomes muito curtos pesam menos
+        const s = dice * (0.75 + 0.25 * lenPen) * c.w;
+        if (s > best) best = s;
+      }
+    }
+    let ts = 0;
+    if (g.text && fullG.size > 80) { const d = 2 * inter(g.text, fullG) / (g.text.size + fullG.size); ts = Math.max(0, Math.min(1, (d - 0.22) * 1.6)); }
+    const score = Math.max(best, ts, best * 0.7 + ts * 0.5);
+    if (score > 0.3) out.push({ key:k, g, score:Math.min(1, score) });
+  }
+  return out.sort((a, b) => b.score - a.score).slice(0, 6);
+}
+async function apiComplete(q){
+  try { const r = await fetch(`${API}/complete/${encodeURIComponent(q)}`); if (!r.ok) return []; return await r.json(); } catch { return []; }
+}
+async function apiCard(name){
+  try {
+    const r = await fetch(`${API}/card/${encodeURIComponent(name)}`); if (!r.ok) return null;
+    const c = await r.json();
+    return { id:c.id, name:c.name || c.printed_name, title:c.printed_name || c.name, url:c.url, types:c.types || [], clans:c.clans || [], capacity:c.capacity, group:c.group,
+      disciplines:c.disciplines || [], text:c.card_text || c.text || '', pool:c.pool_cost, blood:c.blood_cost, conviction:c.conviction_cost };
+  } catch { return null; }
+}
+
+/* ---------- busca manual ---------- */
+let suggSel = -1;
+$('#cardSearch').addEventListener('input', async e => {
+  const q = norm(e.target.value); const box = $('#sugg');
+  if (q.length < 2) { box.hidden = true; return; }
+  let items = [];
+  if (DB) {
+    const qg = grams(q);
+    items = [...DB.groups.values()].map(g => {
+      const n = norm(g.title);
+      let s = n.startsWith(q) ? 2 : n.includes(q) ? 1.5 : 0;
+      if (!s) { const i = inter(qg, grams(n)); s = 2 * i / (qg.size + grams(n).size); }
+      return { title:g.title, s, type:g.cards[0].types.join('/') };
+    }).filter(x => x.s > .45).sort((a, b) => b.s - a.s || a.title.length - b.title.length).slice(0, 10);
+  } else {
+    items = (await apiComplete(e.target.value)).slice(0, 10).map(t => ({ title:t, type:'' }));
+  }
+  suggSel = -1;
+  box.innerHTML = items.map(x => `<div data-t="${esc(x.title)}"><span>${esc(x.title)}</span><span class="muted" style="font-size:.8rem">${esc(x.type)}</span></div>`).join('');
+  box.hidden = !items.length;
+});
+$('#cardSearch').addEventListener('keydown', e => {
+  const items = $$('#sugg div'); if ($('#sugg').hidden || !items.length) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); suggSel = (suggSel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; items.forEach((d, i) => d.classList.toggle('on', i === suggSel)); }
+  if (e.key === 'Enter') { e.preventDefault(); pickSugg(items[Math.max(0, suggSel)].dataset.t); }
+  if (e.key === 'Escape') $('#sugg').hidden = true;
+});
+$('#sugg').addEventListener('mousedown', e => { const d = e.target.closest('[data-t]'); if (d) { e.preventDefault(); pickSugg(d.dataset.t); } });
+$('#cardSearch').addEventListener('blur', () => setTimeout(() => $('#sugg').hidden = true, 150));
+function pickSugg(t){ $('#sugg').hidden = true; $('#cardSearch').value = ''; $('#identify').innerHTML = ''; openCardByName(t); }
+
+/* ---------- exibição da carta ---------- */
+let currentCard = null;
+async function openCardByName(title){
+  if (DB) {
+    const g = DB.groups.get(norm(title)) || [...DB.groups.values()].find(g => g.cards.some(c => c.name === title));
+    if (g) return showCard(g.cards, 0);
+  }
+  $('#cardView').innerHTML = '<div class="empty">Consultando o grimório…</div>';
+  const c = await apiCard(title);
+  if (c) showCard([c], 0); else $('#cardView').innerHTML = '<div class="empty">Carta não encontrada.</div>';
+}
+function showCard(list, idx){
+  const c = list[idx]; currentCard = c;
+  const isCrypt = c.types.some(t => /vampire|imbued/i.test(t));
+  const disc = (c.disciplines || []).map(d => `<span class="chip ${d === d.toUpperCase() ? 'gold' : ''}" title="${d === d.toUpperCase() ? 'superior' : 'inferior'}">${esc(d)}</span>`).join(' ');
+  const cost = [c.pool && `${c.pool} pool`, c.blood && `${c.blood} sangue`, c.conviction && `${c.conviction} convicção`].filter(Boolean).join(' · ');
+  const hasPt = c.pt && (c.pt.card_text || c.pt.name);
+  $('#cardView').innerHTML = `
+    <div class="card">
+      ${c.url ? `<img class="art" src="${esc(c.url)}" alt="${esc(c.title)}" loading="lazy" onerror="this.style.display='none'">` : ''}
+      <h3>${esc(c.title)}</h3>
+      ${list.length > 1 ? `<div class="variants">${list.map((v, i) => `<button data-v="${i}" class="${i === idx ? 'on' : ''}">${v.adv ? 'Avançado ' : ''}${v.group ? 'G' + esc(v.group) : esc(v.name)}</button>`).join('')}</div>` : ''}
+      <div class="meta">
+        ${c.types.map(t => `<span class="chip">${esc(t)}</span>`).join(' ')}
+        ${c.clans.map(t => `<span class="chip red">${esc(t)}</span>`).join(' ')}
+        ${isCrypt && c.capacity ? `<span class="chip gold">capacidade ${esc(c.capacity)}</span>` : ''}
+        ${c.group ? `<span class="chip">grupo ${esc(c.group)}</span>` : ''}
+        ${cost ? `<span class="chip gold">${esc(cost)}</span>` : ''}
+      </div>
+      ${disc ? `<div class="meta">${disc}</div>` : ''}
+      <div class="txt" id="cardTxt">${esc(c.text)}</div>
+      <div style="display:flex; gap:6px; margin-top:10px; flex-wrap:wrap">
+        <button class="btn sm blood" id="btnReveal">Revelar à mesa</button>
+        ${hasPt ? '<button class="btn sm" id="btnPt">Ver em português</button>' : ''}
+        <a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="https://vdb.im/cards?q=${encodeURIComponent(c.title)}">VDB ↗</a>
+      </div>
+    </div>`;
+  $$('#cardView .variants button').forEach(b => b.onclick = () => showCard(list, +b.dataset.v));
+  $('#btnReveal').onclick = () => { dispatch({ k:'reveal', card:{ name:c.title, url:c.url } }); toast(`Você revelou <b>${esc(c.title)}</b> à mesa.`); };
+  if (hasPt) { let pt = false; $('#btnPt').onclick = () => { pt = !pt; $('#cardTxt').textContent = pt ? (c.pt.card_text || c.text) : c.text; $('#btnPt').textContent = pt ? 'Ver em inglês' : 'Ver em português'; }; }
+}
+
+/* ================= IDENTIFICAÇÃO POR CÂMERA ================= */
+function contentRect(video, wrap){
+  const W = wrap.clientWidth, H = wrap.clientHeight, vw = video.videoWidth, vh = video.videoHeight;
+  const s = Math.min(W / vw, H / vh); const cw = vw * s, ch = vh * s;
+  return { x:(W - cw) / 2, y:(H - ch) / 2, w:cw, h:ch, s };
+}
+function bindIdentify(wrap, id){
+  const sel = wrap.querySelector('.sel');
+  let start = null;
+  wrap.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    // no modo foco, clicar numa miniatura troca a mesa em destaque
+    if (spotlight && spotlight !== id) { e.preventDefault(); setFocus(id); return; }
+    const r = wrap.getBoundingClientRect();
+    start = { x:e.clientX - r.left, y:e.clientY - r.top };
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener('pointermove', e => {
+    if (!start) return;
+    const r = wrap.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    if (Math.abs(x - start.x) + Math.abs(y - start.y) < 8) return;
+    Object.assign(sel.style, { display:'block', left:Math.min(x, start.x) + 'px', top:Math.min(y, start.y) + 'px', width:Math.abs(x - start.x) + 'px', height:Math.abs(y - start.y) + 'px' });
+  });
+  wrap.addEventListener('pointerup', e => {
+    if (!start) return;
+    const r = wrap.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    const dragged = Math.abs(x - start.x) + Math.abs(y - start.y) >= 8;
+    sel.style.display = 'none';
+    start0 = start; start = null;
+    const video = wrap.querySelector('video');
+    if (!video.videoWidth) { toast('Ainda não há vídeo deste jogador.', true); return; }
+    const cr = contentRect(video, wrap);
+    const norm01 = b => {
+      let nx = (b.x - cr.x) / cr.w, ny = (b.y - cr.y) / cr.h, nw = b.w / cr.w, nh = b.h / cr.h;
+      if (nx < 0) { nw += nx; nx = 0; } if (ny < 0) { nh += ny; ny = 0; }
+      nw = Math.min(1 - nx, nw); nh = Math.min(1 - ny, nh);
+      return nw < 0.02 || nh < 0.02 ? null : { nx, ny, nw, nh };
+    };
+    const fw = cardFrac();
+    let box, land = null, win;
+    if (dragged) {
+      box = { x:Math.min(x, start0.x), y:Math.min(y, start0.y), w:Math.abs(x - start0.x), h:Math.abs(y - start0.y) };
+      win = box;
+    } else {
+      // clique: carta em pé e deitada ao redor do ponto + uma janela maior para achar o contorno
+      const w = cr.w * fw, h = w * 1.4, s = h * 2.1;
+      box = { x:x - w / 2, y:y - h / 2, w, h };
+      land = norm01({ x:x - h / 2, y:y - w / 2, w:h, h:w });
+      win = { x:x - s / 2, y:y - s / 2, w:s, h:s };
+    }
+    flash(wrap, box);
+    const main = norm01(box); if (!main) return;
+    const q = { main, land, win:norm01(win) || main, cx:(x - cr.x) / cr.w, cy:(y - cr.y) / cr.h, fw, dragged, ar:video.videoHeight / video.videoWidth };
+    identify(video, id, q, nameOf(id), wrap);
+  });
+}
+let start0 = null;
+function cardFrac(){ return Math.max(0.04, Math.min(0.5, +store.get('vtes.cardFrac', 0.2) || 0.2)); }
+function flash(wrap, b){
+  const f = document.createElement('div'); f.className = 'flash';
+  Object.assign(f.style, { left:b.x + 'px', top:b.y + 'px', width:b.w + 'px', height:b.h + 'px' });
+  wrap.appendChild(f); setTimeout(() => f.remove(), 900);
+}
+function showQuad(wrap, quad){
+  const video = wrap?.querySelector('video'); if (!video?.videoWidth || !quad) return;
+  const cr = contentRect(video, wrap);
+  const pts = quad.map(p => `${(cr.x + p[0] * cr.w).toFixed(1)},${(cr.y + p[1] * cr.h).toFixed(1)}`).join(' ');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'quad'); svg.setAttribute('width', wrap.clientWidth); svg.setAttribute('height', wrap.clientHeight);
+  svg.innerHTML = `<polygon points="${pts}"/>`;
+  wrap.appendChild(svg); setTimeout(() => svg.remove(), 2200);
+}
+
+/* ============================================================
+   DECK — lista privada, fica só no navegador do jogador
+   ============================================================ */
+let myDeck = store.get('vtes.deck', null);   // { name, author, source, url, cards:[{id,count,name}] , bad:[] }
+let deckCards = [];                           // cartas resolvidas: {id,count,card}
+const deckMsg = (html, err) => { $('#deckMsg').innerHTML = html; $('#deckMsg').className = 'help' + (err ? ' err' : ''); };
+
+async function resolveCard(id, name){
+  if (DB) { const c = DB.byId.get(+id); if (c) return c; if (name) { const n = DB.byName.get(norm(name)); if (n) return n; } }
+  const c = await apiCard(id || name);
+  return c;
+}
+async function setDeck(deck){
+  myDeck = deck; store.set('vtes.deck', deck);
+  deckCards = [];
+  for (const x of deck?.cards || []) { const card = await resolveCard(x.id, x.name); if (card) deckCards.push({ id:card.id, count:x.count, card }); }
+  renderDeck();
+  sendDeckInfo();
+  buildSignatures();
+}
+function clearDeck(){ sigRun++; myDeck = null; deckCards = []; store.set('vtes.deck', null); for (const x of sigs.values()) del(x.desc); sigs.clear(); renderDeck(); sendDeckInfo(); }
+function sendDeckInfo(){ if (state && inGame) dispatch({ k:'deckInfo', id:me.id, has:deckCards.length > 0 }); }
+
+function isCrypt(c){ return (c.types || []).some(t => /vampire|imbued/i.test(t)); }
+function renderDeck(){
+  const box = $('#deckView'); if (!box) return;
+  if (!myDeck || !deckCards.length) {
+    box.innerHTML = `<div class="empty">Nenhum deck carregado.<br>Com o deck, a mesa reconhece suas cartas também <b>pela imagem</b> — muito mais rápido e preciso.</div>`;
+    return;
+  }
+  const crypt = deckCards.filter(x => isCrypt(x.card));
+  const lib = deckCards.filter(x => !isCrypt(x.card));
+  const byType = new Map();
+  for (const x of lib) { const t = (x.card.types || ['Outros']).join(' / '); if (!byType.has(t)) byType.set(t, []); byType.get(t).push(x); }
+  const sum = a => a.reduce((s, x) => s + x.count, 0);
+  const row = x => `<li data-card="${esc(x.card.title)}" data-id="${x.card.id}">${x.card.url ? `<img src="${esc(x.card.url)}" alt="" loading="lazy">` : ''}<b>${x.count}×</b><span>${esc(x.card.title)}${x.card.group && isCrypt(x.card) ? ` <span class="muted">G${esc(x.card.group)}</span>` : ''}</span><i class="sig" data-sig="${x.card.id}" title="assinatura visual"></i></li>`;
+  box.innerHTML = `
+    <div class="deckhead">
+      <div><div class="dn">${esc(myDeck.name || 'Deck sem nome')}</div>
+      <div class="muted" style="font-size:.85rem">${myDeck.author ? 'por ' + esc(myDeck.author) + ' · ' : ''}cripta ${sum(crypt)} · biblioteca ${sum(lib)}${myDeck.url ? ` · <a href="${esc(myDeck.url)}" target="_blank" rel="noopener">abrir origem ↗</a>` : ''}</div></div>
+      <button class="btn sm" id="btnDeckClear" title="Remover deck">Remover</button>
+    </div>
+    <div class="muted" style="font-size:.85rem; margin:8px 0 4px" id="sigStatus">Preparando o reconhecimento por imagem…</div>
+    <div class="progress"><i id="sigBar"></i></div>
+    ${myDeck.bad?.length ? `<p class="help err" style="font-size:.85rem">Não reconheci ${myDeck.bad.length} linha(s): ${myDeck.bad.slice(0, 6).map(esc).join(' · ')}${myDeck.bad.length > 6 ? '…' : ''}</p>` : ''}
+    <div class="orn" style="margin:14px 0 6px">Cripta (${sum(crypt)})</div>
+    <ul class="decklist">${crypt.map(row).join('')}</ul>
+    ${[...byType].map(([t, a]) => `<div class="orn" style="margin:14px 0 6px">${esc(t)} (${sum(a)})</div><ul class="decklist">${a.map(row).join('')}</ul>`).join('')}`;
+  $('#btnDeckClear').onclick = () => { if (confirm('Remover o deck carregado?')) clearDeck(); };
+  updateSigUI();
+}
+$('#deckView')?.addEventListener('click', e => { const li = e.target.closest('[data-card]'); if (li) { showTab('card'); $('#identify').innerHTML = ''; openCardByName(li.dataset.card); } });
+
+/* ---- leitura de listas em texto (VDB, TWD, Lackey, "3x Nome") ---- */
+function resolveName(raw){
+  if (!DB) return null;
+  let s = raw.replace(/\s+/g, ' ').trim();
+  let group = null;
+  const gm = s.match(/(?:\(G(\d+|\*)\)|:(\d|ANY)\s*$)/i);
+  if (gm) group = (gm[1] || gm[2] || '').toUpperCase();
+  const adv = /\(ADV\)|\badv\b/i.test(s);
+  const toks = norm(s).split(' ');
+  for (let k = toks.length; k >= 1; k--) {
+    const key = toks.slice(0, k).join(' ');
+    const c = DB.byName.get(key);
+    if (c) {
+      const g = DB.groups.get(norm(c.title));
+      if (g && g.cards.length > 1 && isCrypt(c)) {
+        const pick = g.cards.find(v => (!group || String(v.group).toUpperCase() === group || group === 'ANY') && !!v.adv === adv) || g.cards.find(v => !!v.adv === adv);
+        if (pick) return pick;
+      }
+      return c;
+    }
+  }
+  // aproximado (erros de digitação)
+  const qg = grams(norm(s)); let best = null, bs = 0;
+  for (const g of DB.groups.values()) { const kg = g.keys[0]?.g; if (!kg) continue; const d = 2 * inter(qg, kg) / (qg.size + kg.size); if (d > bs) { bs = d; best = g.cards[0]; } }
+  return bs >= 0.8 ? best : null;
+}
+function parseDeckText(txt){
+  const cards = new Map(), bad = [];
+  let name = null, author = null;
+  for (const raw of txt.split(/\r?\n/)) {
+    const l = raw.replace(/\s+/g, ' ').trim();
+    if (!l) continue;
+    const nm = l.match(/^(?:deck name|name)\s*:\s*(.+)$/i); if (nm) { name = nm[1]; continue; }
+    const am = l.match(/^(?:author|created by)\s*:\s*(.+)$/i); if (am) { author = am[1]; continue; }
+    const m = l.match(/^(\d{1,2})\s*[xX×]?\s+(.+)$/) || l.match(/^(.+?)\s+[xX×]\s*(\d{1,2})$/);
+    if (!m) continue;
+    const [count, nameRaw] = /^\d/.test(m[1]) ? [+m[1], m[2]] : [+m[2], m[1]];
+    const c = resolveName(nameRaw);
+    if (!c) { bad.push(nameRaw); continue; }
+    const o = cards.get(c.id); if (o) o.count += count; else cards.set(c.id, { id:c.id, count, name:c.name });
+  }
+  return { name, author, cards:[...cards.values()], bad };
+}
+function fromKrcgDeck(j){
+  const cards = [];
+  for (const x of j.crypt?.cards || []) cards.push({ id:x.id, count:x.count, name:x.name });
+  for (const sec of j.library?.cards || []) for (const x of sec.cards || []) cards.push({ id:x.id, count:x.count, name:x.name });
+  return { name:j.name, author:j.player || j.author, cards };
+}
+async function postJSON(url, body){
+  const r = await fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify(body) });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+async function importDeckUrl(url){
+  url = url.trim();
+  if (!url) return;
+  deckMsg('Buscando o deck…');
+  try {
+    let deck = null;
+    if (/vdb\.im/i.test(url)) {
+      // 1) link "padrão" do VDB: as cartas vêm no próprio endereço (#100001=3;200002=1)
+      const u = new URL(url);
+      const pairs = [...(u.hash + ';' + u.search).matchAll(/(\d{6})=(\d+)/g)];
+      if (pairs.length) {
+        deck = { name:u.searchParams.get('name'), author:u.searchParams.get('author'), cards:pairs.map(p => ({ id:+p[1], count:+p[2] })) };
+      } else {
+        const id = (url.match(/decks\/(?!deck\b)([0-9a-zA-Z_-]+)/) || url.match(/[?&]id=([0-9a-zA-Z_-]+)/) || [])[1];
+        if (!id) throw new Error('link do VDB sem identificador de deck');
+        // 2) API da KRCG (aceita links do VDB); 3) API do próprio VDB
+        const tries = [
+          () => postJSON(`${API}/vdb`, { url:`https://vdb.im/decks/${id}` }).then(fromKrcgDeck),
+          () => postJSON(`${API}/vdb`, { url:`https://vdb.im/decks?id=${id}` }).then(fromKrcgDeck),
+          () => fetch(`https://vdb.im/api/deck/${id}`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(j => {
+            const src = j.cards || j.deck?.cards || {};
+            return { name:j.name, author:j.author, cards:Object.entries(src).map(([k, v]) => ({ id:+k, count:typeof v === 'object' ? (v.q ?? v.count) : +v })).filter(x => x.count > 0) };
+          })
+        ];
+        for (const t of tries) { try { deck = await t(); if (deck?.cards?.length) break; } catch (e) { console.warn(e); } }
+      }
+      if (deck) deck.source = 'VDB';
+    } else if (/amaranth/i.test(url)) {
+      deck = fromKrcgDeck(await postJSON(`${API}/amaranth`, { url })); deck.source = 'Amaranth';
+    } else throw new Error('use um link do vdb.im ou do Amaranth');
+    if (!deck?.cards?.length) throw new Error('o deck veio vazio (ele é público?)');
+    deck.url = url;
+    await setDeck(deck);
+    deckMsg(`Deck carregado: <b>${esc(deck.name || 'sem nome')}</b>.`);
+  } catch (e) {
+    deckMsg(`Não consegui importar: ${esc(e.message)}. Alternativa: no VDB use <i>Export → Copy to clipboard</i> e cole a lista abaixo.`, true);
+  }
+}
+async function importDeckText(txt){
+  if (!txt.trim()) return;
+  let deck;
+  if (DB) deck = parseDeckText(txt);
+  else {
+    try {
+      const r = await fetch(`${API}/convert/json`, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body:txt });
+      deck = fromKrcgDeck(await r.json());
+    } catch { deckMsg('O banco de cartas ainda não carregou e a conversão online falhou. Tente de novo em instantes.', true); return; }
+  }
+  if (!deck.cards.length) { deckMsg('Não encontrei cartas nessa lista. Formato esperado: uma carta por linha, como <i>3x Deflection</i>.', true); return; }
+  deck.source = 'texto';
+  await setDeck(deck);
+  deckMsg(`Deck carregado: ${deck.cards.length} cartas diferentes${deck.bad?.length ? `, ${deck.bad.length} linha(s) não reconhecida(s)` : ''}.`, !!deck.bad?.length);
+}
+$('#btnDeckUrl').onclick = () => importDeckUrl($('#deckUrl').value);
+$('#deckUrl').addEventListener('keydown', e => { if (e.key === 'Enter') importDeckUrl($('#deckUrl').value); });
+$('#btnDeckText').onclick = () => importDeckText($('#deckText').value);
+
+/* ============================================================
+   VISÃO COMPUTACIONAL (OpenCV.js, carregado sob demanda)
+   ============================================================ */
+const CV_URL = 'https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.10.0-release.1/dist/opencv.js';
+let CV = null, cvLoading = null;
+function loadCV(){
+  if (CV) return Promise.resolve(CV);
+  if (!cvLoading) cvLoading = (async () => {
+    await loadScript(CV_URL);
+    let c = window.cv;
+    if (c && typeof c.then === 'function' && !c.Mat) c = await new Promise(res => c.then(m => { try { delete m.then; } catch {} res(m); }));
+    if (!c.Mat) await new Promise(res => { c.onRuntimeInitialized = res; });
+    CV = c; return c;
+  })().catch(e => { cvLoading = null; throw e; });
+  return cvLoading;
+}
+function withTimeout(p, ms){ return Promise.race([p, new Promise(r => setTimeout(() => r(null), ms))]); }
+function del(...ms){ for (const m of ms) try { m && m.delete && m.delete(); } catch {} }
+
+const CARD_W = 540, CARD_H = 754;       // proporção 63×88 mm
+// Acha o retângulo de carta mais provável em volta do ponto; devolve a carta "desentortada".
+function detectCard(src, hint){
+  const cv = CV;
+  const s = Math.min(1, 1000 / Math.max(src.width, src.height));
+  const W = Math.round(src.width * s), H = Math.round(src.height * s);
+  const img = cv.imread(src), gray = new cv.Mat(), small = new cv.Mat(), edges = new cv.Mat(), tmp = new cv.Mat();
+  const contours = new cv.MatVector(), hier = new cv.Mat();
+  let best = null;
+  try {
+    cv.cvtColor(img, gray, cv.COLOR_RGBA2GRAY);
+    cv.resize(gray, small, new cv.Size(W, H), 0, 0, cv.INTER_AREA);
+    cv.GaussianBlur(small, small, new cv.Size(5, 5), 0);
+    const k = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(3, 3));
+    const expA = hint.short ? hint.short * hint.short * 1.4 * s * s : null;
+    const cx = hint.cx * s, cy = hint.cy * s;
+    const consider = mat => {
+      const cs = new cv.MatVector(), hh = new cv.Mat();
+      cv.findContours(mat, cs, hh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
+      for (let i = 0; i < cs.size(); i++) {
+        const c = cs.get(i);
+        const area = cv.contourArea(c);
+        if (area < W * H * 0.004) { c.delete(); continue; }
+        const rr = cv.minAreaRect(c);
+        const w = rr.size.width, h = rr.size.height;
+        if (!w || !h) { c.delete(); continue; }
+        const ar = Math.min(w, h) / Math.max(w, h);
+        const fill = area / (w * h);
+        if (ar < 0.6 || ar > 0.84 || fill < 0.78) { c.delete(); continue; }
+        const br = cv.boundingRect(c);
+        if (br.x <= 2 || br.y <= 2 || br.x + br.width >= W - 2 || br.y + br.height >= H - 2) { c.delete(); continue; } // encostado na borda: não é uma carta inteira
+        if (expA && (w * h / expA < 0.3 || w * h / expA > 3)) { c.delete(); continue; }
+        const d = Math.hypot(rr.center.x - cx, rr.center.y - cy);
+        const inside = cv.pointPolygonTest(c, new cv.Point(cx, cy), true);
+        if (inside < -Math.max(w, h) * 0.15) { c.delete(); continue; }
+        let score = fill * (1 - Math.abs(ar - 0.716) * 2) * (1 / (1 + d / Math.max(w, h)));
+        if (expA) score *= Math.exp(-Math.abs(Math.log((w * h) / expA)) * 1.2);
+        else score *= Math.sqrt(area / (W * H));
+        if (!best || score > best.score) {
+          // cantos: aproximação poligonal se for um quadrilátero limpo, senão o retângulo mínimo
+          const approx = new cv.Mat();
+          cv.approxPolyDP(c, approx, 0.02 * cv.arcLength(c, true), true);
+          let pts;
+          if (approx.rows === 4 && cv.isContourConvex(approx)) { pts = []; for (let j = 0; j < 4; j++) pts.push([approx.data32S[j * 2] / s, approx.data32S[j * 2 + 1] / s]); }
+          else pts = cv.RotatedRect.points(rr).map(p => [p.x / s, p.y / s]);
+          approx.delete();
+          best = { score, pts, short:Math.min(w, h) / s };
+        }
+        c.delete();
+      }
+      cs.delete(); hh.delete();
+    };
+    // 1) bordas (Canny) — 2) limiar adaptativo, para mesas escuras ou cartas com borda preta
+    cv.Canny(small, edges, 30, 100); cv.dilate(edges, edges, k); consider(edges);
+    if (!best || best.score < 0.25) {
+      cv.adaptiveThreshold(small, tmp, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 31, 5);
+      consider(tmp);
+      cv.bitwise_not(tmp, tmp); consider(tmp);
+    }
+    k.delete();
+    if (!best || best.score < 0.12) return null;
+    const q = orderQuad(best.pts);
+    // sempre "em pé": se o lado de cima for o maior, a carta está deitada
+    const top = Math.hypot(q[1][0] - q[0][0], q[1][1] - q[0][1]), side = Math.hypot(q[3][0] - q[0][0], q[3][1] - q[0][1]);
+    const Q = top > side ? [q[1], q[2], q[3], q[0]] : q;
+    const srcM = cv.matFromArray(4, 1, cv.CV_32FC2, Q.flat());
+    const dstM = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, CARD_W, 0, CARD_W, CARD_H, 0, CARD_H]);
+    const M = cv.getPerspectiveTransform(srcM, dstM), out = new cv.Mat();
+    cv.warpPerspective(img, out, M, new cv.Size(CARD_W, CARD_H), cv.INTER_CUBIC, cv.BORDER_REPLICATE);
+    const canvas = document.createElement('canvas'); cv.imshow(canvas, out);
+    del(srcM, dstM, M, out);
+    return { canvas, quad:q, short:best.short, lying:top > side, score:best.score };
+  } finally { del(img, gray, small, edges, tmp, contours, hier); }
+}
+function orderQuad(p){
+  const c = [p.reduce((a, b) => a + b[0], 0) / 4, p.reduce((a, b) => a + b[1], 0) / 4];
+  const s = [...p].sort((a, b) => Math.atan2(a[1] - c[1], a[0] - c[0]) - Math.atan2(b[1] - c[1], b[0] - c[0]));
+  // começa no canto superior esquerdo (menor x+y), sentido horário
+  let i0 = 0; s.forEach((q, i) => { if (q[0] + q[1] < s[i0][0] + s[i0][1]) i0 = i; });
+  return [0, 1, 2, 3].map(k => s[(i0 + k) % 4]);
+}
+
+/* ---- assinaturas visuais das cartas do deck (ORB) ---- */
+const sigs = new Map();   // id -> {desc, pts, card}
+let sigRun = 0, sigState = { total:0, done:0, failed:0, busy:false, blocked:false };
+function loadImg(url){
+  return new Promise((res, rej) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.referrerPolicy = 'no-referrer'; im.onload = () => res(im); im.onerror = rej; im.src = url; });
+}
+function vdbImgUrl(card){ const b = (card.url || '').split('/').pop(); return b ? `https://vdb.im/images/cards/en-EN/${b}` : null; }
+// Para comparar imagens é preciso ler os pixels, e o servidor precisa permitir (CORS).
+// Se a KRCG/VDB não permitirem, as imagens passam pelo wsrv.nl, um proxy público de imagens que permite.
+let pixelVia = store.get('vtes.pixelVia', 'direct');
+const proxied = u => 'https://wsrv.nl/?url=' + encodeURIComponent(u);
+async function loadRefCanvas(card){
+  const direct = [card.url, vdbImgUrl(card)].filter(Boolean);
+  const viaProxy = direct.map(u => ['proxy', proxied(u)]), viaDirect = direct.map(u => ['direct', u]);
+  for (const [via, url] of pixelVia === 'proxy' ? [...viaProxy, ...viaDirect] : [...viaDirect, ...viaProxy]) {
+    try {
+      const im = await loadImg(url);
+      const c = cardCanvas(im);
+      c.getContext('2d').getImageData(0, 0, 1, 1);     // falha se o servidor não liberar a leitura
+      if (via !== pixelVia) { pixelVia = via; store.set('vtes.pixelVia', via); }
+      return c;
+    } catch (e) { if (e?.name === 'SecurityError') sigState.blocked = true; }
+  }
+  return null;
+}
+// assinaturas de qualquer carta (não só do deck), guardadas em memória
+const refCache = new Map();
+async function refSig(card){
+  const s = sigs.get(card.id); if (s) return s;
+  if (refCache.has(card.id)) return refCache.get(card.id);
+  const c = await loadRefCanvas(card);
+  let o = null;
+  if (c && CV) { o = orbOf(c, 700); if (o.desc.rows < 20) { del(o.desc); o = null; } }
+  refCache.set(card.id, o);
+  if (refCache.size > 160) { const [k, v] = refCache.entries().next().value; if (v) del(v.desc); refCache.delete(k); }
+  return o;
+}
+function orbOf(canvasOrMat, n = 600){
+  const cv = CV;
+  const m = canvasOrMat instanceof HTMLCanvasElement ? cv.imread(canvasOrMat) : canvasOrMat;
+  const g = new cv.Mat(); cv.cvtColor(m, g, cv.COLOR_RGBA2GRAY);
+  cv.equalizeHist(g, g);
+  const orb = new cv.ORB(n), kp = new cv.KeyPointVector(), desc = new cv.Mat(), none = new cv.Mat();
+  orb.detectAndCompute(g, none, kp, desc);
+  const pts = []; for (let i = 0; i < kp.size(); i++) { const p = kp.get(i).pt; pts.push(p.x, p.y); }
+  del(g, orb, kp, none); if (canvasOrMat instanceof HTMLCanvasElement) m.delete();
+  return { desc, pts };
+}
+function cardCanvas(im){
+  const c = document.createElement('canvas'); c.width = CARD_W; c.height = CARD_H;
+  c.getContext('2d').drawImage(im, 0, 0, CARD_W, CARD_H); return c;
+}
+async function buildSignatures(){
+  const run = ++sigRun;
+  for (const s of sigs.values()) del(s.desc);
+  sigs.clear();
+  sigState = { total:deckCards.length, done:0, failed:0, busy:true, blocked:false };
+  updateSigUI();
+  if (!deckCards.length) { sigState.busy = false; updateSigUI(); return; }
+  try { await loadCV(); } catch { sigState.busy = false; sigState.cvFail = true; updateSigUI(); return; }
+  for (const x of deckCards) {
+    if (run !== sigRun) return;
+    let ok = false;
+    const c = await loadRefCanvas(x.card);
+    if (c) { const o = orbOf(c, 700); if (o.desc.rows >= 20) { sigs.set(x.card.id, { ...o, card:x.card }); ok = true; } else del(o.desc); }
+    if (ok) sigState.done++; else sigState.failed++;
+    updateSigUI();
+    await new Promise(r => setTimeout(r, 0));
+  }
+  sigState.busy = false; updateSigUI();
+}
+function updateSigUI(){
+  const st = $('#sigStatus'), bar = $('#sigBar'); if (!st) return;
+  const { total, done, failed, busy, blocked, cvFail } = sigState;
+  if (bar) bar.style.width = total ? ((done + failed) / total * 100).toFixed(0) + '%' : '0';
+  if (cvFail) st.innerHTML = 'Não foi possível carregar o módulo de visão (OpenCV). O reconhecimento pelo nome continua funcionando.';
+  else if (busy) st.textContent = `Preparando o reconhecimento por imagem… ${done + failed}/${total}`;
+  else if (done) st.innerHTML = `<b style="color:var(--ok)">Reconhecimento por imagem ativo</b> para ${done} de ${total} cartas.${failed ? ` ${failed} imagem(ns) não puderam ser lidas${blocked ? ' (o servidor de imagens bloqueou a leitura)' : ''}.` : ''}`;
+  else if (total) st.innerHTML = `As imagens das cartas não puderam ser analisadas${blocked ? ' (bloqueio do servidor de imagens)' : ''}. O reconhecimento pelo nome continua funcionando, priorizando as cartas do seu deck.`;
+  $$('[data-sig]').forEach(i => i.classList.toggle('on', sigs.has(+i.dataset.sig)));
+}
+// Compara uma carta (idealmente já desentortada) com as assinaturas do deck
+// pontos que coincidem de verdade (inliers da homografia) entre a carta da câmera (q) e uma referência (s)
+function inliersOf(q, s, bf){
+  const cv = CV;
+  const mv = new cv.DMatchVectorVector();
+  bf.knnMatch(q.desc, s.desc, mv, 2);
+  const good = [];
+  for (let i = 0; i < mv.size(); i++) {
+    const m = mv.get(i);
+    if (m.size() >= 2) { const a = m.get(0), b = m.get(1); if (a.distance < 0.78 * b.distance) good.push([a.queryIdx, a.trainIdx]); }
+    m.delete();
+  }
+  mv.delete();
+  let inl = 0;
+  if (good.length >= 8) {
+    const A = cv.matFromArray(good.length, 1, cv.CV_32FC2, good.flatMap(([qi]) => [q.pts[qi * 2], q.pts[qi * 2 + 1]]));
+    const B = cv.matFromArray(good.length, 1, cv.CV_32FC2, good.flatMap(([, ti]) => [s.pts[ti * 2], s.pts[ti * 2 + 1]]));
+    const mask = new cv.Mat();
+    const Hm = cv.findHomography(A, B, cv.RANSAC, 6, mask);
+    if (!Hm.empty()) inl = cv.countNonZero(mask);
+    del(A, B, mask, Hm);
+  }
+  return inl;
+}
+// Compara uma carta (idealmente já desentortada) com as assinaturas do deck
+function matchDeck(canvas){
+  if (!sigs.size || !CV) return [];
+  const q = orbOf(canvas, 1000);
+  const out = [];
+  if (q.desc.rows < 10) { del(q.desc); return out; }
+  const bf = new CV.BFMatcher(CV.NORM_HAMMING, false);
+  for (const [id, s] of sigs) out.push({ id, title:s.card.title, url:s.card.url, inliers:inliersOf(q, s, bf) });
+  del(bf, q.desc);
+  out.sort((a, b) => b.inliers - a.inliers);
+  // cartas diferentes ainda "casam" um pouco pela moldura em comum; a certa se destaca muito das demais
+  const noise = Math.max(8, out[2]?.inliers || 0, out.length > 1 ? Math.min(out[1].inliers, 14) : 0);
+  const ok = out.filter(x => x.inliers >= Math.max(20, noise * 2));
+  ok.forEach(x => x.conf = Math.min(1, (x.inliers - noise) / 28));
+  // devolve só o necessário: a melhor e, se estiver perto, a segunda (não revela o resto do deck)
+  return ok.filter((x, i) => i === 0 || (i === 1 && x.inliers >= ok[0].inliers * 0.7)).slice(0, 2);
+}
+// Compara a carta da câmera com a imagem oficial de cada candidata. inliers = -1: imagem de referência indisponível.
+async function verifyByImage(canvases, titles){
+  if (!CV) { try { await withTimeout(loadCV(), 15000); } catch {} }
+  if (!CV || !DB) return [];
+  const qs = canvases.map(c => orbOf(c, 1000)).filter(q => { if (q.desc.rows >= 10) return true; del(q.desc); return false; });
+  if (!qs.length) return [];
+  const bf = new CV.BFMatcher(CV.NORM_HAMMING, false);
+  const out = [];
+  try {
+    for (const t of titles) {
+      const g = DB.groups.get(norm(t)); if (!g) continue;
+      let best = -1, pick = 0;
+      // vampiros com o mesmo nome em grupos diferentes (e as versões avançadas) têm imagens diferentes
+      const vs = g.cards.slice(0, isCrypt(g.cards[0]) ? 5 : 2);
+      for (let i = 0; i < vs.length; i++) {
+        const s = await refSig(vs[i]); if (!s) continue;
+        if (best < 0) best = 0;
+        for (const q of qs) { const n = inliersOf(q, s, bf); if (n > best) { best = n; pick = i; } }
+        if (best >= 30) break;
+      }
+      out.push({ title:g.title, inliers:best, card:vs[pick], pick, cards:g.cards });
+    }
+  } finally { del(bf); qs.forEach(q => del(q.desc)); }
+  return out.sort((a, b) => b.inliers - a.inliers);
+}
+// cartas já identificadas na mesa de cada jogador: na próxima vez, a comparação por imagem vem antes do texto
+const seenCards = new Map();   // nome do jogador -> títulos, mais recentes primeiro
+function noteSeen(owner, title){
+  if (!owner || !title) return;
+  const l = (seenCards.get(owner) || []).filter(t => t !== title);
+  l.unshift(title); seenCards.set(owner, l.slice(0, 30));
+}
+
+async function analyzeLocal(video, q, { useDeck, cvWait }){
+  const win = cropCanvas(video, q.win, 2000);
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const pxX = win.width / (q.win.nw * vw) * vw, pxY = win.height / (q.win.nh * vh) * vh; // px do recorte por unidade de quadro
+  let det = null;
+  if (!CV && cvWait) { try { await withTimeout(loadCV(), cvWait); } catch {} }
+  if (CV) {
+    try {
+      det = detectCard(win, {
+        cx:(q.cx - q.win.nx) * pxX, cy:(q.cy - q.win.ny) * pxY,
+        short:q.dragged ? null : q.fw * pxX
+      });
+    } catch (e) { console.warn('detect', e); }
+  }
+  const res = { warped:null, quad:null, fw:null, hits:[], crops:null };
+  if (det) {
+    res.warped = det.canvas;
+    res.quad = det.quad.map(([x, y]) => [q.win.nx + x / pxX, q.win.ny + y / pxY]);
+    res.fw = det.short / pxX;
+  } else {
+    res.crops = [q.main, q.land].filter(Boolean).map(r => cropCanvas(video, r, 1600));
+  }
+  if (useDeck && CV && sigs.size) { try { res.hits = matchDeck(res.warped || res.crops[0]); } catch (e) { console.warn('match', e); } }
+  return res;
+}
+
+/* ---- pedido ao dono da mesa (via anfitrião) ---- */
+const snapWaits = new Map();
+function sendTo(to, msg){
+  if (me.isHost) { if (to === me.id) onP2P(msg); else guestConns.get(to)?.send(msg); }
+  else if (hostConn?.open) hostConn.send(msg);
+}
+function requestSnap(id, q, ms = 9000){
+  return new Promise(res => {
+    const reqId = Math.random().toString(36).slice(2);
+    const t = setTimeout(() => { snapWaits.delete(reqId); res(null); }, ms);
+    snapWaits.set(reqId, r => { clearTimeout(t); snapWaits.delete(reqId); res(r); });
+    sendTo(id, { t:'snapReq', reqId, to:id, from:me.id, q });
+  });
+}
+async function onP2P(msg){
+  if (msg.t === 'snapReq') {
+    const v = tileEls.get(me.id)?.querySelector('video') || $('#pv');
+    let reply = { t:'snapRes', reqId:msg.reqId, to:msg.from, ok:false };
+    try {
+      if (v?.videoWidth && msg.q?.main) {
+        const r = await analyzeLocal(v, msg.q, { useDeck:true, cvWait:2500 });
+        reply = { ...reply, ok:true, quad:r.quad, fw:r.fw, hits:r.hits,
+          warped:r.warped ? r.warped.toDataURL('image/jpeg', 0.9) : null,
+          crops:r.crops ? r.crops.map(c => c.toDataURL('image/jpeg', 0.92)) : null };
+      }
+    } catch (e) { console.warn(e); }
+    sendTo(msg.from, reply);
+  } else if (msg.t === 'snapRes') {
+    snapWaits.get(msg.reqId)?.(msg);
+  }
+}
+function toCanvas(src){
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); res(c); };
+    im.onerror = rej; im.src = src;
+  });
+}
+
+/* ---- OCR ---- */
+let ocrWorker = null, ocrBusy = false, ocrProg = null;
+async function getWorker(){
+  if (ocrWorker) return ocrWorker;
+  await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
+  ocrWorker = await Tesseract.createWorker('eng', 1, { logger: m => ocrProg && ocrProg(m) });
+  await ocrWorker.setParameters({ tessedit_pageseg_mode:'11', preserve_interword_spaces:'1' });
+  return ocrWorker;
+}
+// recorte na resolução original do vídeo; maxOut limita o tamanho
+function cropCanvas(video, r, maxOut){
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const sx = r.nx * vw, sy = r.ny * vh, sw = r.nw * vw, sh = r.nh * vh;
+  const scale = maxOut ? Math.min(1, maxOut / Math.max(sw, sh)) : Math.max(1, Math.min(4, 1100 / sw));
+  const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(sw * scale)); c.height = Math.max(1, Math.round(sh * scale));
+  const g = c.getContext('2d', { willReadFrequently:true });
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(video, sx, sy, sw, sh, 0, 0, c.width, c.height);
+  return c;
+}
+function upscale(src, minW = 1100){
+  const s = Math.max(1, Math.min(4, minW / src.width));
+  if (s === 1) return src;
+  const c = document.createElement('canvas'); c.width = Math.round(src.width * s); c.height = Math.round(src.height * s);
+  const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(src, 0, 0, c.width, c.height); return c;
+}
+function rotCanvas(src, deg){
+  const c = document.createElement('canvas');
+  const side = deg % 180 !== 0;
+  c.width = side ? src.height : src.width; c.height = side ? src.width : src.height;
+  const g = c.getContext('2d'); g.translate(c.width / 2, c.height / 2); g.rotate(deg * Math.PI / 180); g.drawImage(src, -src.width / 2, -src.height / 2);
+  return c;
+}
+// faixa horizontal da carta desentortada, redimensionada para a largura W
+function bandOf(card, y0, y1, flip, W = 900){
+  const src = flip ? rotCanvas(card, 180) : card;
+  const s = W / src.width;
+  const c = document.createElement('canvas'); c.width = W; c.height = Math.round(src.height * (y1 - y0) * s);
+  const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+  g.drawImage(src, 0, -Math.round(src.height * y0 * s), W, Math.round(src.height * s));
+  return c;
+}
+function prep(src, invert){
+  const c = document.createElement('canvas'); c.width = src.width; c.height = src.height;
+  const g = c.getContext('2d', { willReadFrequently:true }); g.drawImage(src, 0, 0);
+  const img = g.getImageData(0, 0, c.width, c.height), d = img.data;
+  const hist = new Uint32Array(256); const Y = new Uint8ClampedArray(d.length / 4);
+  for (let i = 0, j = 0; i < d.length; i += 4, j++) { const y = (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114) | 0; Y[j] = y; hist[y]++; }
+  const total = Y.length; let lo = 0, hi = 255, acc = 0;
+  for (let i = 0; i < 256; i++) { acc += hist[i]; if (acc > total * 0.02) { lo = i; break; } }
+  acc = 0; for (let i = 255; i >= 0; i--) { acc += hist[i]; if (acc > total * 0.02) { hi = i; break; } }
+  const k = 255 / Math.max(1, hi - lo);
+  for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+    let v = (Y[j] - lo) * k; v = v < 0 ? 0 : v > 255 ? 255 : v; if (invert) v = 255 - v;
+    d[i] = d[i+1] = d[i+2] = v;
+  }
+  g.putImageData(img, 0, 0);
+  return c;
+}
+function toLines(t, allTop){
+  // linhas do topo do recorte (onde fica o nome) pesam mais
+  const ls = t.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  const top = allTop ? ls.length : Math.max(3, Math.ceil(ls.length * 0.35));
+  return ls.map((s, i) => ({ s, w: i < top ? 1 : 0.85 }));
+}
+function matchDB(texts, allTop){
+  const lines = texts.flatMap(t => toLines(t, allTop));
+  return scoreGroups(lines, texts.join('\n')).map(x => ({ title:x.g.title, score:x.score, cards:x.g.cards, url:x.g.cards[0].url, via:['texto'] }));
+}
+async function apiCandidates(lines){
+  const qs = lines.map(o => o.s.replace(/[^\p{L}\p{N} ',.-]/gu, '').trim()).filter(l => l.length >= 4).slice(0, 6);
+  const seen = new Set(), res = [];
+  for (const q of qs) for (const t of (await apiComplete(q)).slice(0, 2)) if (!seen.has(t)) { seen.add(t); res.push({ title:t, score:null, via:['texto'] }); }
+  return res;
+}
+
+/* ---- fluxo completo de identificação ---- */
+async function identify(video, id, q, owner, wrap){
+  showTab('card');
+  if (ocrBusy) { toast('Já estou lendo uma carta, um instante…'); return; }
+  ocrBusy = true;
+  const box = $('#identify');
+  box.innerHTML = `
+    <div class="crop"><div id="cropHold"></div>
+      <div style="flex:1">
+        <div style="font-family:var(--fh); font-size:.8rem; letter-spacing:.1em; color:var(--gold2)">IDENTIFICANDO</div>
+        <div class="muted" style="font-size:.9rem">mesa de ${esc(owner)} <span id="srcTag"></span></div>
+        <div class="progress"><i id="ocrBar"></i></div>
+        <div class="muted" id="ocrMsg" style="font-size:.82rem; margin-top:4px">preparando…</div>
+      </div>
+    </div>
+    <div class="cands" id="cands"></div>`;
+  const bar = $('#ocrBar'), msg = $('#ocrMsg');
+  const setBar = f => bar.style.width = Math.round(Math.min(1, f) * 100) + '%';
+  let pass = 0, total = 2;
+  const onProg = m => {
+    if (m.status === 'recognizing text') { setBar(0.3 + 0.7 * (pass + m.progress) / total); msg.textContent = `lendo o texto (${pass + 1}/${total})…`; }
+    else if (m.status) msg.textContent = ({ 'loading tesseract core':'carregando o leitor…', 'initializing tesseract':'iniciando…', 'loading language traineddata':'baixando o idioma…', 'initializing api':'iniciando…' })[m.status] || m.status;
+  };
+  const found = new Map();
+  const merge = list => { for (const x of list) { const o = found.get(x.title); if (!o) found.set(x.title, { ...x, via:[...x.via] }); else { o.score = Math.max(o.score, x.score) + (o.via.includes(x.via[0]) ? 0 : 0.12); o.via = [...new Set([...o.via, ...x.via])]; o.cards ||= x.cards; o.url ||= x.url; } } };
+  const best = () => Math.max(0, ...[...found.values()].map(x => Math.min(1, x.score)));
+  try {
+    // 1) imagem + contorno + comparação com o deck — feitos por quem tem a imagem original
+    let r = null, hi = false;
+    msg.textContent = id === me.id ? 'procurando o contorno da carta…' : 'pedindo a imagem original ao jogador…';
+    setBar(0.08);
+    if (id !== me.id) {
+      const resp = await requestSnap(id, q);
+      if (resp?.ok) {
+        hi = true;
+        r = { quad:resp.quad, fw:resp.fw, hits:resp.hits || [],
+          warped:resp.warped ? await toCanvas(resp.warped) : null,
+          crops:resp.crops ? await Promise.all(resp.crops.map(toCanvas)) : null };
+      }
+    }
+    if (!r) { r = await analyzeLocal(video, q, { useDeck:id === me.id, cvWait:20000 }); hi = id === me.id; }
+    setBar(0.3);
+    if (r.quad) {
+      showQuad(wrap, r.quad);
+      if (r.fw) store.set('vtes.cardFrac', cardFrac() * 0.5 + r.fw * 0.5);   // aprende o tamanho das cartas na câmera
+    }
+    const tags = [hi ? '<span class="chip gold" title="Feito com a imagem original da câmera do jogador">alta resolução</span>' : '<span class="chip" title="O jogador não respondeu; usando o vídeo recebido">vídeo recebido</span>'];
+    if (r.warped) tags.push('<span class="chip gold" title="Contorno encontrado e perspectiva corrigida">contorno</span>');
+    $('#srcTag').innerHTML = tags.join(' ');
+    const shown = r.warped || r.crops[0];
+    const thumb = document.createElement('canvas'); thumb.width = shown.width; thumb.height = shown.height; thumb.getContext('2d').drawImage(shown, 0, 0);
+    $('#cropHold').appendChild(thumb);
+
+    // 2) resultado pela imagem (deck do dono)
+    const hitList = [];
+    for (const h of r.hits || []) {
+      const g = DB?.groups.get(norm(h.title));
+      hitList.push({ title:h.title, url:h.url, cards:g?.cards || null, score:0.5 + 0.5 * h.conf, via:['imagem'] });
+    }
+    merge(hitList);
+    let strong = hitList[0] && hitList[0].score >= 0.9 && (!hitList[1] || hitList[1].score < hitList[0].score * 0.8);
+    let how = strong ? 'reconhecida pela imagem do deck' : '';
+
+    // 3) comparação por imagem com as candidatas (cartas já vistas, texto lido)
+    const qCanvases = [r.warped || r.crops[0], !r.warped && r.crops[1] ? r.crops[1] : null].filter(Boolean);
+    const verified = new Set(), allVer = [];
+    let imgBlocked = false;
+    const verify = async (titles, label) => {
+      titles = [...new Set(titles)].filter(t => t && !verified.has(t)).slice(0, 10);
+      if (!titles.length || !DB) return false;
+      titles.forEach(t => verified.add(t));
+      msg.textContent = `${label}…`;
+      const res = await verifyByImage(qCanvases, titles);
+      const valid = res.filter(x => x.inliers >= 0);
+      if (res.length && !valid.length) { imgBlocked = true; return false; }
+      allVer.push(...valid); allVer.sort((a, b) => b.inliers - a.inliers);
+      const top = allVer[0], second = Math.max(6, allVer[1]?.inliers || 0);
+      const ok = !!top && top.inliers >= 18 && top.inliers >= 2 * second;
+      for (const x of valid) {
+        const o = found.get(x.title);
+        if (ok && x === top) {
+          const sc = 0.6 + 0.4 * Math.min(1, (top.inliers - second) / 30);
+          if (o) { o.score = Math.max(o.score ?? 0, sc); o.via = [...new Set(['imagem', ...o.via])]; o.url = x.card.url; o.cards = x.cards; o.pick = x.pick; }
+          else found.set(x.title, { title:x.title, score:sc, cards:x.cards, pick:x.pick, url:x.card.url, via:['imagem'] });
+        } else if (o && o.score != null && x.inliers < 12) o.score *= 0.55;   // a imagem não bate: rebaixa a leitura do texto
+      }
+      return ok;
+    };
+    const topTitles = n => [...found.values()].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).map(x => x.title).slice(0, n);
+
+    let rawAll = '';
+    if (!strong && DB) {
+      // cartas já vistas nesta mesa (e o seu deck, se a mesa for a sua): só imagem, sem ler texto
+      const seen = [...(seenCards.get(owner) || []), ...(id === me.id ? deckCards.map(d => d.card.title) : [])];
+      if (seen.length) {
+        setBar(0.35);
+        if (await verify(seen, 'comparando com as cartas já vistas nesta mesa')) { strong = true; how = 'reconhecida pela imagem (carta já vista nesta mesa)'; }
+      }
+    }
+
+    // 4) texto (OCR): só sugere candidatas; quem decide é a imagem
+    if (!strong) {
+      ocrProg = onProg;
+      const w = await getWorker();
+      const ocr = async (canvas, inv, psm) => { await w.setParameters({ tessedit_pageseg_mode:psm }); const { data } = await w.recognize(prep(canvas, inv)); pass++; rawAll += (data.text || '') + '\n'; return data.text || ''; };
+      const boostMine = list => id === me.id && deckCards.length ? list.map(x => deckCards.some(d => d.card.title === x.title) ? { ...x, score:x.score + 0.15 } : x) : list;
+      const check = async () => { if (DB && await verify(topTitles(8), 'comparando as imagens das candidatas')) { strong = true; how = 'reconhecida pela imagem'; } return strong; };
+      if (r.warped) {
+        // carta desentortada: o nome fica na faixa de cima (ou de baixo, se estiver de cabeça para baixo)
+        const nameReads = async flip => [
+          await ocr(bandOf(r.warped, 0.015, 0.12, flip, 700), false, '13'),
+          await ocr(bandOf(r.warped, 0, 0.17, flip, 900), true, '6')
+        ];
+        total = 2;
+        if (DB) merge(boostMine(matchDB(await nameReads(false), true))); else await nameReads(false);
+        if (DB && !await check()) {
+          total = pass + 2; merge(boostMine(matchDB(await nameReads(true), true)));
+          if (!await check()) { total = pass + 1; merge(boostMine(matchDB([await ocr(upscale(r.warped), false, '11')]))); await check(); }
+        }
+      } else {
+        const [main, land] = r.crops;
+        const t1 = [await ocr(upscale(main), false, '11'), await ocr(upscale(main), true, '11')];
+        if (DB) merge(boostMine(matchDB(t1)));
+        if (DB && !await check()) {
+          const src = land || main; total = pass + 2;
+          for (const deg of [90, 270]) merge(boostMine(matchDB([await ocr(upscale(rotCanvas(src, deg)), false, '11')]).map(x => ({ ...x, score:x.score * 0.97 }))));
+          await check();
+        }
+      }
+      if (!DB && !found.size) merge(await apiCandidates(rawAll.split('\n').filter(Boolean).map(s => ({ s, w:1 }))));
+    }
+    setBar(1);
+    const list = [...found.values()].map(x => ({ ...x, score:x.score == null ? null : Math.min(1, x.score) })).sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 6);
+    if (strong && list[0]) noteSeen(owner, list[0].title);
+    msg.innerHTML = (how || 'leitura concluída')
+      + (imgBlocked ? ' · <span style="color:#ff9aa6">imagens de referência indisponíveis: resultado só pelo texto</span>' : '')
+      + (rawAll ? ` · <a href="#" id="rawTog">ver texto lido</a><div class="ocrraw" id="raw" hidden>${esc(rawAll.trim() || '(nada legível)')}</div>` : '');
+    if (rawAll) $('#rawTog').onclick = e => { e.preventDefault(); $('#raw').hidden = !$('#raw').hidden; };
+    showCandidates(list, owner);
+  } catch (e) {
+    console.error(e);
+    msg.textContent = 'Falha na identificação: ' + (e.message || e) + '. Use a busca por nome.';
+  } finally { ocrBusy = false; }
+}
+function showCandidates(res, owner){
+  const box = $('#cands');
+  if (!res.length) {
+    box.innerHTML = `<div class="empty" style="padding:14px">Não reconheci a carta. Tente arrastar um retângulo em volta dela, aproximar a câmera, ou use a busca acima.</div>`;
+    return;
+  }
+  const conf = s => s == null ? '' : `<span class="sc">${Math.round(s * 100)}%</span>`;
+  const via = v => (v || []).map(t => `<span class="chip ${t === 'imagem' ? 'gold' : ''}" style="font-size:.68rem">${t}</span>`).join(' ');
+  box.innerHTML = `<div class="muted" style="font-size:.8rem; font-family:var(--fh); letter-spacing:.12em">CANDIDATAS</div>` + res.map((x, i) =>
+    `<button class="cand ${i === 0 ? 'on' : ''}" data-i="${i}">${x.url ? `<img src="${esc(x.url)}" alt="" loading="lazy">` : ''}<span>${esc(x.title)}<br>${via(x.via)}</span>${conf(x.score)}</button>`).join('');
+  const open = i => { $$('#cands .cand').forEach((b, j) => b.classList.toggle('on', j === i)); const x = res[i]; if (x.cards) showCard(x.cards, x.pick || 0); else openCardByName(x.title); };
+  $$('#cands .cand').forEach(b => b.onclick = () => { open(+b.dataset.i); noteSeen(owner, res[+b.dataset.i].title); });   // escolha manual ensina a mesa
+  open(0);
+  if (res[0].score != null && res[0].score < 0.5) toast('Leitura incerta — confira as candidatas.');
+}
+
+/* ================= LOBBY / INICIALIZAÇÃO ================= */
+$$('[data-ltab]').forEach(b => b.onclick = () => {
+  $$('[data-ltab]').forEach(x => x.classList.toggle('on', x === b));
+  $('#lobbyPlay').hidden = b.dataset.ltab !== 'play';
+  $('#lobbyCredits').hidden = b.dataset.ltab !== 'credits';
+});
+$('#btnHost').onclick = () => createRoom();
+$('#btnJoin').onclick = () => joinRoom();
+$('#codeIn').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+$('#camSel').onchange = e => startMedia(e.target.value, $('#micSel').value);
+$('#micSel').onchange = e => startMedia($('#camSel').value, e.target.value);
+$('#camSel2').onchange = e => startMedia(e.target.value, rawStream?.getAudioTracks()[0]?.getSettings?.().deviceId);
+$$('[data-orient]').forEach(b => b.onclick = () => orientAct(b.dataset.orient));
+$('#btnMic').onclick = () => { micOn = !micOn; applyTrackToggles(); };
+$('#btnCam').onclick = () => { camOn = !camOn; applyTrackToggles(); };
+$('#btnLeave').onclick = () => {
+  if (me.isHost && !confirm('Você é o anfitrião: sair encerra a mesa para todos. Sair mesmo assim?')) return;
+  try { peer?.destroy(); } catch {}
+  localStream?.getTracks().forEach(t => t.stop());
+  location.hash = ''; location.reload();
+};
+$('#roomCode').onclick = () => {
+  // publicado na internet: copia o link que já abre com o código preenchido; aberto como arquivo: só o código
+  const online = /^https?:/.test(location.protocol);
+  const txt = online ? location.origin + location.pathname + '#' + (state?.code || '') : (state?.code || '');
+  navigator.clipboard?.writeText(txt).then(() => toast(online ? 'Link da mesa copiado — é só mandar para os jogadores.' : 'Código copiado.'));
+};
+
+(function init(){
+  $('#appVer').textContent = APP_VERSION;
+  $$('.appVer').forEach(e => e.textContent = APP_VERSION);
+  renderDeck();
+  $('#nameIn').value = store.get('vtes.name', '');
+  const turn = store.get('vtes.turn', null);
+  if (turn) { $('#turnUrl').value = turn.u || ''; $('#turnUser').value = turn.user || ''; $('#turnPass').value = turn.pass || ''; }
+  const h = location.hash.replace('#', '').toUpperCase();
+  if (/^[A-Z0-9]{4,6}$/.test(h)) {
+    // aberto pelo link de convite: só a opção de entrar, para ninguém criar outra mesa por engano
+    $('#codeIn').value = h;
+    $('#btnHost').hidden = true; $('#orSep').hidden = true;
+    $('#inviteNote').hidden = false; $('#inviteCode').textContent = h;
+    $('#btnJoin').textContent = 'Entrar na mesa'; $('#btnJoin').classList.add('blood');
+    $('#lobbyPlay').insertAdjacentHTML('afterend', '<p class="help" style="font-size:.8rem; color:var(--dim); margin-top:14px; text-align:center">Quer abrir a sua própria mesa? Acesse o site sem o código no final do endereço.</p>');
+  }
+  try {
+    if (sessionStorage.getItem('vtes.kicked')) { sessionStorage.removeItem('vtes.kicked'); toast('O anfitrião removeu você da mesa.', true, 10000); }
+  } catch {}
+  if (!navigator.mediaDevices?.getUserMedia) {
+    toast('Este navegador não permite acesso à câmera nesta página. Abra em Chrome/Edge/Firefox atualizados (https ou arquivo local).', true, 10000);
+    localStream = blankStream();
+  } else startMedia();
+  loadDB();
+})();
+</script>
+</body>
+</html>
