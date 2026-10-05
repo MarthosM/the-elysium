@@ -246,6 +246,8 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
 .toast{background:#1d0e12; border:1px solid var(--line2); padding:10px 16px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.6); animation:tin .2s ease-out; max-width:min(560px,92vw); pointer-events:auto}
 .toast.err{border-color:var(--blood2)}
 @keyframes tin{from{opacity:0; transform:translateY(8px)}}
+.revealed-by{margin-top:12px; padding:8px 10px; border:1px solid var(--blood2); border-radius:8px; background:linear-gradient(180deg,rgba(142,11,24,.25),rgba(20,8,10,.6)); font-size:.95rem; animation:tin .25s ease-out}
+.revealed-by b{font-family:var(--fh); color:var(--gold2)}
 .reveal{position:fixed; right:calc(var(--sideW,380px) + 20px); top:70px; z-index:40; width:220px; animation:tin .25s ease-out; pointer-events:none}
 .reveal img{width:100%; border-radius:12px; box-shadow:0 0 0 2px var(--blood2), 0 20px 50px rgba(0,0,0,.8)}
 .reveal div{font-family:var(--fh); text-align:center; font-size:.8rem; margin-top:6px; text-shadow:0 2px 6px #000}
@@ -553,7 +555,7 @@ body.side-closed .reveal{right:16px}
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const APP_VERSION = '2.7 · 30/09/2026';
+const APP_VERSION = '2.8 · 04/10/2026';
 const PHASES = ['Destravar','Mestre','Servos','Influência','Descarte'];
 const MAX_PLAYERS = 5;
 const START_POOL = 30;
@@ -1412,7 +1414,7 @@ function renderLog(){
   const lastTs = L.length ? L[L.length-1].ts : 0;
   if (renderLog.lastTs && lastTs > renderLog.lastTs) {
     const fresh = L.filter(e => e.ts > renderLog.lastTs);
-    fresh.filter(e => e.k === 'card' && e.who !== me.name).forEach(e => showReveal(e));
+    fresh.filter(e => e.k === 'card' && e.who !== me.name).forEach(e => showRevealed(e));
     fresh.filter(e => e.k === 'chat' && e.who !== me.name).forEach(e => toast(`<b>${esc(e.who)}:</b> ${esc(e.text)}`));
     fresh.filter(e => e.k === 'sys' && /como observador|\(observador\) saiu/.test(e.text)).forEach(e => toast('👁 ' + esc(e.text)));
     if (activeTab !== 'log') { unread += fresh.length; $('#logBadge').textContent = unread; $('#logBadge').hidden = false; }
@@ -1420,6 +1422,21 @@ function renderLog(){
   renderLog.lastTs = lastTs;
 }
 $('#log').addEventListener('click', e => { const c = e.target.closest('[data-card]'); if (c) { showTab('card'); openCardByName(c.dataset.card); } });
+// carta revelada por outro jogador: fica no painel Carta, no lugar da identificação (não só um aviso passageiro)
+let revealWait = null;
+function showRevealed(e){
+  if (ocrBusy) {   // não interrompe uma identificação em andamento: mostra quando ela terminar
+    clearInterval(revealWait);
+    revealWait = setInterval(() => { if (!ocrBusy) { clearInterval(revealWait); revealWait = null; showRevealed(e); } }, 400);
+    return;
+  }
+  showTab('card');
+  $('#cardSearch').value = ''; $('#sugg').hidden = true;
+  $('#identify').innerHTML = `<div class="revealed-by"><span class="lbl" style="margin:0">Revelada à mesa</span><b>${esc(e.who)}</b> mostrou esta carta · <span class="muted">${fmtTime(e.ts)}</span></div>`;
+  openCardByName(e.card.name, e.card.url);
+  // com o painel recolhido ou em tela cheia a lateral não aparece: mantém também o aviso
+  if (document.fullscreenElement || document.body.classList.contains('side-closed')) showReveal(e);
+}
 function showReveal(e){
   const r = document.createElement('div'); r.className = 'reveal';
   r.innerHTML = `${e.card.url ? `<img src="${esc(e.card.url)}" alt="">` : ''}<div>${esc(e.who)} revela <b>${esc(e.card.name)}</b></div>`;
@@ -1581,10 +1598,10 @@ function pickSugg(t){ $('#sugg').hidden = true; $('#cardSearch').value = ''; $('
 
 /* ---------- exibição da carta ---------- */
 let currentCard = null;
-async function openCardByName(title){
+async function openCardByName(title, url){
   if (DB) {
     const g = DB.groups.get(norm(title)) || [...DB.groups.values()].find(g => g.cards.some(c => c.name === title));
-    if (g) return showCard(g.cards, 0);
+    if (g) return showCard(g.cards, Math.max(0, url ? g.cards.findIndex(c => c.url === url) : 0));   // url aponta a versão exata (grupo/avançado)
   }
   $('#cardView').innerHTML = '<div class="empty">Consultando o grimório…</div>';
   const c = await apiCard(title);
