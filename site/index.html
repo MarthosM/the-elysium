@@ -209,6 +209,9 @@ textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
 .credits .mail:hover{color:#fff}
 .credits ul{text-align:left; padding-left:1.1em; font-size:.9rem; margin:0}
 .credits .disc{font-size:.8rem; color:var(--dim); margin-top:18px}
+.mesalink{text-align:center; margin:-12px 0 22px}
+.mesalink .btn{display:inline-block; text-decoration:none}
+.mesalink p{margin:6px 0 0; font-size:.85rem; color:var(--muted)}
 .lobby-tabs{display:flex; gap:4px; margin:-8px 0 18px; border-bottom:1px solid var(--line)}
 .lobby-tabs button{background:none; border:none; border-bottom:2px solid transparent; padding:8px 18px; font-family:var(--fh); font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted)}
 .lobby-tabs button:hover{color:var(--bone)}
@@ -305,6 +308,10 @@ body.side-closed .reveal{right:16px}
     <p>Vampire: The Eternal Struggle · cartas físicas, câmeras abertas, sangue na mesa</p>
   </div>
 
+  <div class="mesalink">
+    <a class="btn" href="https://mesatcg.net/#vtes" target="_blank" rel="noopener">MESA · encontrar jogadores</a>
+    <p>Marque que está disponível e receba um aviso quando alguém quiser jogar VTES.</p>
+  </div>
   <nav class="lobby-tabs" role="tablist">
     <button class="on" data-ltab="play" role="tab">Entrar na mesa</button>
     <button data-ltab="credits" role="tab">Créditos</button>
@@ -555,7 +562,7 @@ body.side-closed .reveal{right:16px}
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const APP_VERSION = '2.8 · 04/10/2026';
+const APP_VERSION = '2.9 · 02/11/2026';
 const PHASES = ['Destravar','Mestre','Servos','Influência','Descarte'];
 const MAX_PLAYERS = 5;
 const START_POOL = 30;
