@@ -200,6 +200,27 @@ details.adv[open] summary{margin-bottom:10px}
 .decklist li span{flex:1; min-width:0}
 .decklist .sig{width:8px; height:8px; border-radius:50%; background:var(--line2)}
 .decklist .sig.on{background:var(--ok); box-shadow:0 0 6px var(--ok)}
+/* versão (edição) das cartas do deck */
+.pchip{flex:0 0 auto; background:#0e0709; border:1px solid var(--line2); border-radius:999px; padding:0 .55em; font-family:var(--fh); font-size:.68rem; letter-spacing:.04em; color:var(--muted); line-height:1.6; white-space:nowrap}
+.pchip:hover{border-color:var(--gold); color:var(--gold2)}
+.pchip.set{border-color:var(--gold); color:var(--gold2)}
+.pchip[disabled]{cursor:default; opacity:.6; border-style:dashed}
+.decklist li.picking{background:#1f1115}
+.decklist li.pickrow{display:block; cursor:default; padding:6px 4px 10px; background:#140a0c; border:1px solid var(--line); border-radius:8px; margin:2px 0 6px}
+.decklist li.pickrow:hover{background:#140a0c}
+.pick-h{display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center; justify-content:space-between; font-size:.85rem; color:var(--muted); margin:0 2px 8px}
+.pick-strip{display:flex; gap:8px; overflow-x:auto; padding:2px 2px 8px; scroll-snap-type:x proximity}
+.pv{flex:0 0 auto; width:96px; background:#0e0709; border:2px solid var(--line); border-radius:8px; padding:4px; display:flex; flex-direction:column; align-items:center; gap:2px; text-align:center; scroll-snap-align:start; position:relative}
+.pv:hover{border-color:var(--gold)}
+.pv.on{border-color:var(--gold2); box-shadow:0 0 12px rgba(230,201,138,.35)}
+.pv.on::after{content:"✓"; position:absolute; top:6px; right:8px; background:var(--gold2); color:#1a0c0f; border-radius:999px; width:18px; height:18px; font-size:.75rem; line-height:18px; font-weight:700}
+.decklist .pv img{width:84px; height:117px; object-fit:cover; border-radius:5px; background:#222}
+.decklist .pv b{font-family:var(--fh); font-size:.72rem; color:var(--gold2); min-width:0}
+.pv small{font-size:.7rem; color:var(--dim); line-height:1.2; max-width:88px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pick-f{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; margin-top:2px}
+.printall{display:flex; gap:8px; align-items:center; margin:12px 0 2px}
+.printall .lbl{margin:0; white-space:nowrap}
+.printall select{padding:.3em .5em; font-size:.85rem}
 textarea.input{resize:vertical; font-family:var(--fb); font-size:.95rem}
 .credits{text-align:center; padding:10px 4px}
 .credits svg{width:80px; height:40px; filter:drop-shadow(0 0 10px rgba(200,23,45,.5))}
@@ -562,12 +583,16 @@ body.side-closed .reveal{right:16px}
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const APP_VERSION = '2.9 · 02/11/2026';
+const APP_VERSION = '3.0 · 10/11/2026';
 const PHASES = ['Destravar','Mestre','Servos','Influência','Descarte'];
 const MAX_PLAYERS = 5;
 const START_POOL = 30;
 const HOST_PREFIX = 'the-elysium-vtes-';
 const DB_URL = 'https://static.krcg.org/data/vtes.json';
+// edições e decks pré-montados (KRCG/VEKN): código -> [nome, data de lançamento]
+const SETS = {"Jyhad":["Jyhad","19940816"],"VTES":["Vampire: The Eternal Struggle","19950915"],"DS":["Dark Sovereigns","19951215"],"AH":["Ancient Hearts","19960529"],"Sabbat":["Sabbat","19961028"],"SW":["Sabbat War","20001031"],"FN":["Final Nights","20010611"],"BL":["Bloodlines","20011203"],"CE":["Camarilla Edition","20020819"],"Anarchs":["Anarchs","20030519"],"BH":["Black Hand","20031117"],"Gehenna":["Gehenna","20040517"],"Tenth":["Tenth Anniversary","20041213"],"KMW":["Kindred Most Wanted","20050221"],"LoB":["Legacies of Blood","20051114"],"NoR":["Nights of Reckoning","20060410"],"Third":["Third Edition","20060904"],"SoC":["Sword of Caine","20070319"],"LotN":["Lords of the Night","20070926"],"BSC":["Blood Shadowed Court","20080414"],"TR":["Twilight Rebellion","20080528"],"KoT":["Keepers of Tradition","20081119"],"EK":["Ebony Kingdom","20090527"],"HttB":["Heirs to the Blood","20100203"],"DM":["Danse Macabre","20131005"],"TU":["The Unaligned","20141004"],"AU":["Anarch Unbound","20160117"],"Anthology":["Anthology","20170511"],"LK":["Lost Kindred","20180609"],"SP":["Sabbat Preconstructed","20190216"],"25th":["Twenty-Fifth Anniversary","20190816"],"FB":["First Blood","20191001"],"V5":["Fifth Edition","20201130"],"V5A":["Fifth Edition (Anarch)","20211201"],"NB":["New Blood","20220417"],"FoL":["Fall of London","20221014"],"SoB":["Shadows of Berlin","20230630"],"EoG":["Echoes of Gehenna","20230630"],"NB2":["New Blood II","20230801"],"V5C":["Fifth Edition (Companion)","20240101"],"30th":["Thirtieth Anniversary","20240720"],"NB3":["New Blood III","20250531"],"SV5":["Sabbat V5","20251026"],"HttBR":["Heirs to the Blood Reprint","20180714"],"KoTR":["Keepers of Tradition Reprint","20180505"],"Ant1":["Anthology I","20190216"],"PP1":["Promo Pack 1","20200301"],"PP2":["Promo Pack 2","20221103"],"PP3":["Promo Pack 3 — Icons","20250920"]};
+const BUNDLES = {"SW:PL":"Lasombra","SW:PB":"Brujah antitribu","SW:PT":"Tzimisce","SW:PV":"Ventrue antitribu","FN:PS":"Followers of Set","FN:PA":"Assamite","FN:PR":"Ravnos","FN:PG":"Giovanni","CE:PTo":"Toreador","CE:PTr":"Tremere","CE:PV":"Ventrue","CE:PB":"Brujah","CE:PM":"Malkavian","CE:PN":"Nosferatu","Anarchs:PAB":"Anarch Barons","Anarchs:PAG":"Anarch Gang","Anarchs:PG":"Gangrel","BH:PN":"Nosferatu antitribu","BH:PTo":"Toreador antitribu","BH:PTr":"Tremere antitribu","BH:PM":"Malkavian antitribu","Tenth:A":"Tin A","Tenth:B":"Tin B","KMW:PG":"Gangrel antitribu","KMW:PB":"Baali","KMW:PAn":"Anathema","KMW:PAl":"Alastors","LoB:PO":"Osebo","LoB:PG":"Guruhi","LoB:PI":"Ishtarri","LoB:PA":"Akunanse","Third:PTr":"Tremere antitribu","Third:PB":"Brujah antitribu","Third:PM":"Malkavian antitribu","Third:PTz":"Tzimisce","Third:SKB":"Starter Kit Brujah antitribu","Third:SKM":"Starter Kit Malkavian antitribu","Third:SKTr":"Starter Kit Tremere antitribu","Third:SKTz":"Starter Kit Tzimisce","LotN:PS":"Followers of Set","LotN:PA":"Assamite","LotN:PR":"Ravnos","LotN:PG":"Giovanni","BSC:":"","KoT:PV":"Ventrue","KoT:PB":"Brujah","KoT:PM":"Malkavian","KoT:PT":"Toreador","HttB:PSal":"Salubri antitribu","HttB:PGar":"Gargoyles","HttB:PKia":"Kiasyd","HttB:PSam":"Samedi","DM:":"","TU:A":"Bundle 1","TU:B":"Bundle 2","AU:":"","Anthology:":"EC Berlin Edition","KoTR:A":"Reprint Bundle 1","KoTR:B":"Reprint Bundle 2","LK:":"","HttBR:A":"Reprint Bundle 1","HttBR:B":"Reprint Bundle 2","SP:PwN":"Pact with Nephandi","SP:PoS":"Parliament of Shadows","SP:DoF":"Den of Fiends","SP:LB":"Libertine Ball","Ant1:":"","25th:":"","FB:PV":"Ventrue","FB:PM":"Malkavian","FB:PTo":"Toreador","FB:PN":"Nosferatu","FB:PTr":"Tremere","PP1:":"","V5:PV":"Ventrue","V5:PM":"Malkavian","V5:PTo":"Toreador","V5:PN":"Nosferatu","V5:PTr":"Tremere","V5:PL":"Lasombra","V5:PH":"Hecata","V5A:PB":"Brujah","V5A:PMin":"Ministry","V5A:PBh":"Banu Haqim","V5A:PG":"Gangrel","NB:PM":"Malkavian","NB:PN":"Nosferatu","NB:PTo":"Toreador","NB:PTr":"Tremere","NB:PV":"Ventrue","NB2:PB":"Brujah","NB2:PMi":"Ministry","NB2:PBH":"Banu Haqim","NB2:PG":"Gangrel","FoL:":"","PP2:":"","SoB:":"","EoG:":"","V5C:PSal":"Salubri","V5C:PTz":"Tzimisce","V5C:PR":"Ravnos","30th:":"","NB3:PL":"Lasombra","NB3:PH":"Hecata","PP3:":"","SV5:PPower":"Path of Power and the Inner Voice","SV5:PDeath":"Path of Death and the Soul","SV5:PCathari":"Path of Cathari","SV5:PCaine":"Path of Caine","NB3:PR":"Ravnos","NB3:PS":"Salubri","NB3:PT":"Tzimisce","Anthology:LARP":"EC Berlin Edition","V5:SoNY":"Secrets of New York","V5:NBr":"Noites Brasileiras"};
+const SET_BY_NAME = Object.fromEntries(Object.entries(SETS).map(([code, [name, date]]) => [name, { code, date }]));
 const API = 'https://api.krcg.org';
 const store = {
   get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch{ return d; } },
@@ -1486,6 +1511,31 @@ async function loadDB(){
     if (myDeck) setDeck(myDeck);
   }
 }
+// impressões (edições) de uma carta, com a imagem de cada uma, da mais antiga à mais recente.
+// Aceita o formato antigo do arquivo da KRCG (scans/sets) e o novo (prints).
+function printsOf(c){
+  const out = [];
+  if (Array.isArray(c.prints)) {
+    for (const p of c.prints) {
+      const code = p.set?.code || '', s = SETS[code];
+      if (!p.url) continue;
+      out.push({ set:s ? s[0] : code, code, date:s ? s[1] : '', url:p.url,
+        precon:[...new Set((p.occurrences || []).filter(o => o.bundle).map(o => BUNDLES[code + ':' + o.bundle] || o.bundle))] });
+    }
+  } else if (c.scans && typeof c.scans === 'object') {
+    for (const [name, url] of Object.entries(c.scans)) {
+      if (!url || /\/set\/promo\//.test(url)) continue;   // promos sem imagem própria
+      const s = SET_BY_NAME[name] || SET_BY_NAME[name.replace(/ Reprint$/, '')];
+      const info = Array.isArray(c.sets?.[name]) ? c.sets[name] : [];
+      const rd = (info.find(i => i.release_date)?.release_date || '').replace(/-/g, '');
+      out.push({ set:name, code:s ? s.code + (/ Reprint$/.test(name) && !/Reprint$/.test(SETS[s.code][0]) ? 'R' : '') : name.split(/[\s:]+/).map(w => w[0]).join('').toUpperCase(),
+        date:rd || (s ? s.date : ''), url, precon:[...new Set(info.filter(i => i.precon).map(i => i.precon))] });
+    }
+  }
+  out.sort((a, b) => (a.date || '99999999').localeCompare(b.date || '99999999'));
+  return out.filter((x, i) => out.findIndex(y => y.url === x.url) === i);
+}
+const printYear = p => p?.date ? p.date.slice(0, 4) : '';
 function buildDB(raw){
   const groups = new Map();
   const cards = raw.map(c => {
@@ -1495,7 +1545,8 @@ function buildDB(raw){
       id:c.id, name:c.name, title:c.printed_name || c.name, url:c.url, types:c.types || [], clans:c.clans || [],
       capacity:c.capacity, group:c.group, disciplines:c.disciplines || [], text:c.card_text || '',
       pool:c.pool_cost, blood:c.blood_cost, conviction:c.conviction_cost, adv:c.adv, sect:c.sect, title2:c.title,
-      pt, altNames:[...(c.name_variants || []), ...Object.values(i18n).map(v => v && v.name).filter(Boolean)]
+      pt, altNames:[...(c.name_variants || []), ...Object.values(i18n).map(v => v && v.name).filter(Boolean)],
+      prints:printsOf(c)
     };
   });
   for (const c of cards) {
@@ -1568,7 +1619,7 @@ async function apiCard(name){
     const r = await fetch(`${API}/card/${encodeURIComponent(name)}`); if (!r.ok) return null;
     const c = await r.json();
     return { id:c.id, name:c.name || c.printed_name, title:c.printed_name || c.name, url:c.url, types:c.types || [], clans:c.clans || [], capacity:c.capacity, group:c.group,
-      disciplines:c.disciplines || [], text:c.card_text || c.text || '', pool:c.pool_cost, blood:c.blood_cost, conviction:c.conviction_cost };
+      disciplines:c.disciplines || [], text:c.card_text || c.text || '', pool:c.pool_cost, blood:c.blood_cost, conviction:c.conviction_cost, prints:printsOf(c) };
   } catch { return null; }
 }
 
@@ -1608,22 +1659,29 @@ let currentCard = null;
 async function openCardByName(title, url){
   if (DB) {
     const g = DB.groups.get(norm(title)) || [...DB.groups.values()].find(g => g.cards.some(c => c.name === title));
-    if (g) return showCard(g.cards, Math.max(0, url ? g.cards.findIndex(c => c.url === url) : 0));   // url aponta a versão exata (grupo/avançado)
+    if (g) {
+      // url aponta a versão exata (grupo/avançado) ou a arte de uma edição
+      const i = url ? g.cards.findIndex(c => c.url === url || (c.prints || []).some(p => p.url === url)) : 0;
+      const card = g.cards[Math.max(0, i)];
+      return showCard(g.cards, Math.max(0, i), url && url !== card.url ? url : null);
+    }
   }
   $('#cardView').innerHTML = '<div class="empty">Consultando o grimório…</div>';
   const c = await apiCard(title);
   if (c) showCard([c], 0); else $('#cardView').innerHTML = '<div class="empty">Carta não encontrada.</div>';
 }
-function showCard(list, idx){
+function showCard(list, idx, art){
   const c = list[idx]; currentCard = c;
+  const img = art || c.url, ed = art ? (c.prints || []).find(p => p.url === art) : null;
   const isCrypt = c.types.some(t => /vampire|imbued/i.test(t));
   const disc = (c.disciplines || []).map(d => `<span class="chip ${d === d.toUpperCase() ? 'gold' : ''}" title="${d === d.toUpperCase() ? 'superior' : 'inferior'}">${esc(d)}</span>`).join(' ');
   const cost = [c.pool && `${c.pool} pool`, c.blood && `${c.blood} sangue`, c.conviction && `${c.conviction} convicção`].filter(Boolean).join(' · ');
   const hasPt = c.pt && (c.pt.card_text || c.pt.name);
   $('#cardView').innerHTML = `
     <div class="card">
-      ${c.url ? `<img class="art" src="${esc(c.url)}" alt="${esc(c.title)}" loading="lazy" onerror="this.style.display='none'">` : ''}
+      ${img ? `<img class="art" src="${esc(img)}" alt="${esc(c.title)}" loading="lazy" onerror="if(this.src!=='${esc(c.url || '')}'&&'${esc(c.url || '')}')this.src='${esc(c.url || '')}';else this.style.display='none'">` : ''}
       <h3>${esc(c.title)}</h3>
+      ${ed ? `<div class="muted" style="font-size:.85rem; margin-top:-2px">Arte: ${esc(ed.set)}${printYear(ed) ? ' · ' + printYear(ed) : ''}</div>` : ''}
       ${list.length > 1 ? `<div class="variants">${list.map((v, i) => `<button data-v="${i}" class="${i === idx ? 'on' : ''}">${v.adv ? 'Avançado ' : ''}${v.group ? 'G' + esc(v.group) : esc(v.name)}</button>`).join('')}</div>` : ''}
       <div class="meta">
         ${c.types.map(t => `<span class="chip">${esc(t)}</span>`).join(' ')}
@@ -1641,7 +1699,7 @@ function showCard(list, idx){
       </div>
     </div>`;
   $$('#cardView .variants button').forEach(b => b.onclick = () => showCard(list, +b.dataset.v));
-  $('#btnReveal').onclick = () => { dispatch({ k:'reveal', card:{ name:c.title, url:c.url } }); toast(`Você revelou <b>${esc(c.title)}</b> à mesa.`); };
+  $('#btnReveal').onclick = () => { dispatch({ k:'reveal', card:{ name:c.title, url:img || c.url } }); toast(`Você revelou <b>${esc(c.title)}</b> à mesa.`); };
   if (hasPt) { let pt = false; $('#btnPt').onclick = () => { pt = !pt; $('#cardTxt').textContent = pt ? (c.pt.card_text || c.text) : c.text; $('#btnPt').textContent = pt ? 'Ver em inglês' : 'Ver em português'; }; }
 }
 
@@ -1723,8 +1781,11 @@ function showQuad(wrap, quad){
 /* ============================================================
    DECK — lista privada, fica só no navegador do jogador
    ============================================================ */
-let myDeck = store.get('vtes.deck', null);   // { name, author, source, url, cards:[{id,count,name}] , bad:[] }
-let deckCards = [];                           // cartas resolvidas: {id,count,card}
+let myDeck = store.get('vtes.deck', null);   // { name, author, source, url, preconSet, cards:[{id,count,name,prints:[edição…]}] , bad:[] }
+let deckCards = [];                           // cartas resolvidas: {id,count,card,entry}
+// edições escolhidas pelo jogador para cada carta, lembradas para os próximos decks (só neste navegador)
+let printPref = store.get('vtes.prints', {});
+let openPick = null;                          // carta com o seletor de versão aberto
 const deckMsg = (html, err) => { $('#deckMsg').innerHTML = html; $('#deckMsg').className = 'help' + (err ? ' err' : ''); };
 
 async function resolveCard(id, name){
@@ -1735,12 +1796,37 @@ async function resolveCard(id, name){
 async function setDeck(deck){
   myDeck = deck; store.set('vtes.deck', deck);
   deckCards = [];
-  for (const x of deck?.cards || []) { const card = await resolveCard(x.id, x.name); if (card) deckCards.push({ id:card.id, count:x.count, card }); }
+  for (const x of deck?.cards || []) {
+    const card = await resolveCard(x.id, x.name);
+    if (!card) continue;
+    if (!Array.isArray(x.prints)) x.prints = autoPrints(card, deck);
+    deckCards.push({ id:card.id, count:x.count, card, entry:x });
+  }
+  if (deck) store.set('vtes.deck', deck);
   renderDeck();
   sendDeckInfo();
   buildSignatures();
 }
-function clearDeck(){ sigRun++; myDeck = null; deckCards = []; store.set('vtes.deck', null); for (const x of sigs.values()) del(x.desc); sigs.clear(); renderDeck(); sendDeckInfo(); }
+function clearDeck(){ sigRun++; myDeck = null; deckCards = []; openPick = null; store.set('vtes.deck', null); for (const x of sigs.values()) del(x.desc); sigs.clear(); renderDeck(); sendDeckInfo(); }
+// versão inicial de uma carta: a do deck pré-montado importado, a que o jogador já escolheu antes, ou a padrão (mais recente)
+function autoPrints(card, deck){
+  const ps = card.prints || [];
+  if (deck?.preconSet && ps.some(p => p.set === deck.preconSet)) return [deck.preconSet];
+  const pref = (printPref[card.id] || []).filter(n => ps.some(p => p.set === n));
+  return pref;
+}
+// imagens que representam a carta no deck: as edições escolhidas, ou a imagem padrão
+function artsOf(x){
+  const ps = x.card.prints || [], want = x.entry?.prints || [];
+  const ch = ps.filter(p => want.includes(p.set));
+  return ch.length ? ch.map(p => ({ key:p.set, url:p.url, code:p.code })) : [{ key:'', url:x.card.url, code:'' }];
+}
+const latestPrint = card => (card.prints || []).at(-1) || null;
+function setPrints(x, list){
+  x.entry.prints = list;
+  if (list.length) printPref[x.card.id] = list; else delete printPref[x.card.id];
+  store.set('vtes.prints', printPref); store.set('vtes.deck', myDeck);
+}
 function sendDeckInfo(){ if (state && inGame) dispatch({ k:'deckInfo', id:me.id, has:deckCards.length > 0 }); }
 
 function isCrypt(c){ return (c.types || []).some(t => /vampire|imbued/i.test(t)); }
@@ -1755,7 +1841,26 @@ function renderDeck(){
   const byType = new Map();
   for (const x of lib) { const t = (x.card.types || ['Outros']).join(' / '); if (!byType.has(t)) byType.set(t, []); byType.get(t).push(x); }
   const sum = a => a.reduce((s, x) => s + x.count, 0);
-  const row = x => `<li data-card="${esc(x.card.title)}" data-id="${x.card.id}">${x.card.url ? `<img src="${esc(x.card.url)}" alt="" loading="lazy">` : ''}<b>${x.count}×</b><span>${esc(x.card.title)}${x.card.group && isCrypt(x.card) ? ` <span class="muted">G${esc(x.card.group)}</span>` : ''}</span><i class="sig" data-sig="${x.card.id}" title="assinatura visual"></i></li>`;
+  const row = x => {
+    const arts = artsOf(x), ps = x.card.prints || [], lp = latestPrint(x.card);
+    const chosen = arts[0].key ? arts : null;
+    const label = chosen ? chosen[0].code + (chosen.length > 1 ? ' +' + (chosen.length - 1) : '') : (lp ? lp.code : '—');
+    const tip = chosen ? 'Versão: ' + chosen.map(a => a.key).join(', ') : (lp ? `Versão padrão (mais recente: ${lp.set})` : 'Sem outras versões');
+    const chip = `<button class="pchip ${chosen ? 'set' : ''}" data-pick="${x.card.id}" title="${esc(tip)}${ps.length > 1 ? ' · clique para escolher' : ''}" ${ps.length > 1 ? '' : 'disabled'}>${esc(label)}</button>`;
+    return `<li data-card="${esc(x.card.title)}" data-id="${x.card.id}" class="${openPick === x.card.id ? 'picking' : ''}">${arts[0].url ? `<img src="${esc(arts[0].url)}" alt="" loading="lazy">` : ''}<b>${x.count}×</b><span>${esc(x.card.title)}${x.card.group && isCrypt(x.card) ? ` <span class="muted">G${esc(x.card.group)}</span>` : ''}</span>${chip}<i class="sig" data-sig="${x.card.id}" title="assinatura visual"></i></li>`
+      + (openPick === x.card.id ? pickerHTML(x) : '');
+  };
+  // atalho: aplicar uma edição a todas as cartas do deck
+  const setCount = new Map();
+  for (const x of deckCards) for (const p of x.card.prints || []) setCount.set(p.set, (setCount.get(p.set) || 0) + 1);
+  const setOpts = [...setCount].filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1] || (SET_BY_NAME[b[0]]?.date || '').localeCompare(SET_BY_NAME[a[0]]?.date || ''))
+    .map(([name, n]) => `<option value="${esc(name)}">${esc(name)} (${n} cartas)</option>`).join('');
+  const printAll = `<div class="printall"><label class="lbl" for="printAll">Versão das cartas</label>
+    <select id="printAll" class="input" title="Aplica uma edição a todas as cartas do deck que tiverem essa edição">
+      <option value="">Aplicar a todas…</option><option value="__new">A mais recente (padrão)</option><option value="__old">A mais antiga</option>
+      ${setOpts ? `<optgroup label="Edição">${setOpts}</optgroup>` : ''}
+    </select></div>
+    <p class="help" style="font-size:.8rem; margin:2px 0 0">A etiqueta ao lado de cada carta mostra a edição. Clique nela e escolha a arte igual à da sua carta: o reconhecimento pela imagem fica muito mais certeiro.</p>`;
   box.innerHTML = `
     <div class="deckhead">
       <div><div class="dn">${esc(myDeck.name || 'Deck sem nome')}</div>
@@ -1765,13 +1870,83 @@ function renderDeck(){
     <div class="muted" style="font-size:.85rem; margin:8px 0 4px" id="sigStatus">Preparando o reconhecimento por imagem…</div>
     <div class="progress"><i id="sigBar"></i></div>
     ${myDeck.bad?.length ? `<p class="help err" style="font-size:.85rem">Não reconheci ${myDeck.bad.length} linha(s): ${myDeck.bad.slice(0, 6).map(esc).join(' · ')}${myDeck.bad.length > 6 ? '…' : ''}</p>` : ''}
+    ${printAll}
     <div class="orn" style="margin:14px 0 6px">Cripta (${sum(crypt)})</div>
     <ul class="decklist">${crypt.map(row).join('')}</ul>
     ${[...byType].map(([t, a]) => `<div class="orn" style="margin:14px 0 6px">${esc(t)} (${sum(a)})</div><ul class="decklist">${a.map(row).join('')}</ul>`).join('')}`;
   $('#btnDeckClear').onclick = () => { if (confirm('Remover o deck carregado?')) clearDeck(); };
+  $('#printAll').onchange = e => applyPrintAll(e.target.value);
+  if (openPick) { const st = $('#deckView .pick-strip'); const on = st?.querySelector('.pv.on'); if (on) st.scrollLeft = Math.max(0, on.offsetLeft - st.clientWidth / 2 + on.offsetWidth / 2); }
   updateSigUI();
 }
-$('#deckView')?.addEventListener('click', e => { const li = e.target.closest('[data-card]'); if (li) { showTab('card'); $('#identify').innerHTML = ''; openCardByName(li.dataset.card); } });
+function pickerHTML(x){
+  const want = x.entry.prints || [], multi = want.length > 1 || pickMulti;
+  const lp = latestPrint(x.card);
+  return `<li class="pickrow" data-pickfor="${x.card.id}"><div class="pick">
+    <div class="pick-h"><span>Clique na arte <b>igual à da sua carta</b>.</span>
+      <label class="chk" style="font-size:.85rem"><input type="checkbox" data-multi ${multi ? 'checked' : ''}> Tenho mais de uma versão</label></div>
+    <div class="pick-strip">${(x.card.prints || []).slice().reverse().map(p => `<button class="pv ${want.includes(p.set) || (!want.length && p === lp) ? 'on' : ''}" data-set="${esc(p.set)}" title="${esc(p.set)}${p.precon.length ? ' · deck ' + esc(p.precon.join(', ')) : ''}">
+        <img src="${esc(p.url)}" alt="" loading="lazy" onerror="this.closest('.pv').hidden=true">
+        <b>${esc(p.code)}</b><small>${esc(p.set)}</small><small>${printYear(p)}${p.precon.length ? ' · ' + esc(p.precon.join(', ')) : ''}</small></button>`).join('')}</div>
+    <div class="pick-f">${want.length ? '<button class="btn sm" data-pdef>Voltar à padrão</button>' : ''}<button class="btn sm" data-pclose>Fechar</button></div>
+  </div></li>`;
+}
+let pickMulti = false;
+function sigChanged(x){ buildSigsFor(x); }
+function pickPrint(x, set){
+  const ps = x.card.prints || [], lp = latestPrint(x.card);
+  let list = (x.entry.prints || []).slice();
+  if (pickMulti || list.length > 1) {
+    if (!list.length && lp) list = [lp.set];          // a padrão estava marcada: passa a contar como escolha
+    list = list.includes(set) ? list.filter(n => n !== set) : [...list, set];
+    list = ps.filter(p => list.includes(p.set)).map(p => p.set);
+  } else list = [set];
+  if (list.length === 1 && lp && list[0] === lp.set && !pickMulti) list = [];   // só a mais recente = padrão
+  setPrints(x, list);
+  if (!pickMulti && list.length <= 1) openPick = null;   // escolha simples: fecha
+  renderDeck(); sigChanged(x);
+}
+function applyPrintAll(v){
+  if (!v) return;
+  let n = 0;
+  for (const x of deckCards) {
+    const ps = x.card.prints || []; if (ps.length < 2) continue;
+    let list = null;
+    if (v === '__new') list = [];
+    else if (v === '__old') list = [ps[0].set];
+    else if (ps.some(p => p.set === v)) list = latestPrint(x.card)?.set === v ? [] : [v];
+    if (list && JSON.stringify(list) !== JSON.stringify(x.entry.prints || [])) { setPrints(x, list); n++; }
+  }
+  openPick = null;
+  renderDeck();
+  toast(n ? `Versão trocada em ${n} carta(s). Preparando o reconhecimento de novo…` : 'Nenhuma carta mudou.');
+  if (n) buildSignatures();
+}
+$('#deckView')?.addEventListener('click', e => {
+  const xOf = id => deckCards.find(d => d.card.id === +id);
+  const chip = e.target.closest('[data-pick]');
+  if (chip) { const id = +chip.dataset.pick; pickMulti = false; openPick = openPick === id ? null : id; renderDeck(); return; }
+  const pr = e.target.closest('.pickrow');
+  if (pr) {
+    const x = xOf(pr.dataset.pickfor); if (!x) return;
+    const pv = e.target.closest('.pv');
+    if (pv) { pickPrint(x, pv.dataset.set); return; }
+    if (e.target.closest('[data-pdef]')) { setPrints(x, []); pickMulti = false; openPick = null; renderDeck(); sigChanged(x); return; }
+    if (e.target.closest('[data-pclose]')) { openPick = null; pickMulti = false; renderDeck(); return; }
+    const mc = e.target.closest('[data-multi]');
+    if (mc) {
+      pickMulti = mc.checked;
+      if (!pickMulti && (x.entry.prints || []).length > 1) { setPrints(x, [x.entry.prints[0]]); renderDeck(); sigChanged(x); }
+    }
+    return;
+  }
+  const li = e.target.closest('[data-card]');
+  if (li) {
+    const x = xOf(li.dataset.id); showTab('card'); $('#identify').innerHTML = '';
+    const art = x ? artsOf(x)[0] : null;
+    openCardByName(li.dataset.card, art?.key ? art.url : (x?.card.url || undefined));
+  }
+});
 
 /* ---- leitura de listas em texto (VDB, TWD, Lackey, "3x Nome") ---- */
 function resolveName(raw){
@@ -1837,7 +2012,12 @@ async function importDeckUrl(url){
       // 1) link "padrão" do VDB: as cartas vêm no próprio endereço (#100001=3;200002=1)
       const u = new URL(url);
       const pairs = [...(u.hash + ';' + u.search).matchAll(/(\d{6})=(\d+)/g)];
-      if (pairs.length) {
+      const pre = url.match(/decks\/([A-Za-z0-9]+):([A-Za-z0-9]+)/);
+      if (!pairs.length && pre) {
+        deck = fromKrcgDeck(await postJSON(`${API}/vdb`, { url:`https://vdb.im/decks/${pre[1]}:${pre[2]}` }));
+        deck.preconSet = SETS[pre[1]]?.[0] || null;
+        if (!deck.name) deck.name = BUNDLES[pre[1] + ':' + pre[2]] || pre[0];
+      } else if (pairs.length) {
         deck = { name:u.searchParams.get('name'), author:u.searchParams.get('author'), cards:pairs.map(p => ({ id:+p[1], count:+p[2] })) };
       } else {
         const id = (url.match(/decks\/(?!deck\b)([0-9a-zA-Z_-]+)/) || url.match(/[?&]id=([0-9a-zA-Z_-]+)/) || [])[1];
@@ -1986,7 +2166,8 @@ function orderQuad(p){
 }
 
 /* ---- assinaturas visuais das cartas do deck (ORB) ---- */
-const sigs = new Map();   // id -> {desc, pts, card}
+const sigs = new Map();   // 'id|edição' -> {desc, pts, card, url}
+const sigsOf = id => [...sigs.entries()].filter(([k]) => k.startsWith(id + '|')).map(([, v]) => v);
 let sigRun = 0, sigState = { total:0, done:0, failed:0, busy:false, blocked:false };
 function loadImg(url){
   return new Promise((res, rej) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.referrerPolicy = 'no-referrer'; im.onload = () => res(im); im.onerror = rej; im.src = url; });
@@ -1996,8 +2177,9 @@ function vdbImgUrl(card){ const b = (card.url || '').split('/').pop(); return b 
 // Se a KRCG/VDB não permitirem, as imagens passam pelo wsrv.nl, um proxy público de imagens que permite.
 let pixelVia = store.get('vtes.pixelVia', 'direct');
 const proxied = u => 'https://wsrv.nl/?url=' + encodeURIComponent(u);
-async function loadRefCanvas(card){
-  const direct = [card.url, vdbImgUrl(card)].filter(Boolean);
+function vdbSetUrl(card, code){ const b = (card.url || '').split('/').pop(); return b && code ? `https://vdb.im/images/cards/set/${code.toLowerCase()}/${b}` : null; }
+async function loadRefCanvas(card, art){
+  const direct = (art?.key ? [art.url, vdbSetUrl(card, art.code)] : [card.url, vdbImgUrl(card)]).filter(Boolean);
   const viaProxy = direct.map(u => ['proxy', proxied(u)]), viaDirect = direct.map(u => ['direct', u]);
   for (const [via, url] of pixelVia === 'proxy' ? [...viaProxy, ...viaDirect] : [...viaDirect, ...viaProxy]) {
     try {
@@ -2013,7 +2195,7 @@ async function loadRefCanvas(card){
 // assinaturas de qualquer carta (não só do deck), guardadas em memória
 const refCache = new Map();
 async function refSig(card){
-  const s = sigs.get(card.id); if (s) return s;
+  const s = sigsOf(card.id)[0]; if (s) return s;
   if (refCache.has(card.id)) return refCache.get(card.id);
   const c = await loadRefCanvas(card);
   let o = null;
@@ -2041,20 +2223,43 @@ async function buildSignatures(){
   const run = ++sigRun;
   for (const s of sigs.values()) del(s.desc);
   sigs.clear();
-  sigState = { total:deckCards.length, done:0, failed:0, busy:true, blocked:false };
+  const jobs = deckCards.flatMap(x => artsOf(x).map(a => [x, a]));
+  sigState = { total:jobs.length, done:0, failed:0, busy:true, blocked:false };
   updateSigUI();
-  if (!deckCards.length) { sigState.busy = false; updateSigUI(); return; }
+  if (!jobs.length) { sigState.busy = false; updateSigUI(); return; }
   try { await loadCV(); } catch { sigState.busy = false; sigState.cvFail = true; updateSigUI(); return; }
-  for (const x of deckCards) {
+  for (const [x, a] of jobs) {
     if (run !== sigRun) return;
-    let ok = false;
-    const c = await loadRefCanvas(x.card);
-    if (c) { const o = orbOf(c, 700); if (o.desc.rows >= 20) { sigs.set(x.card.id, { ...o, card:x.card }); ok = true; } else del(o.desc); }
-    if (ok) sigState.done++; else sigState.failed++;
+    if (await addSig(x, a)) sigState.done++; else sigState.failed++;
     updateSigUI();
     await new Promise(r => setTimeout(r, 0));
   }
   sigState.busy = false; updateSigUI();
+}
+async function addSig(x, a){
+  const c = await loadRefCanvas(x.card, a);
+  if (!c) return false;
+  const o = orbOf(c, 700);
+  if (o.desc.rows < 20) { del(o.desc); return false; }
+  sigs.set(x.card.id + '|' + a.key, { ...o, card:x.card, url:a.url });
+  return true;
+}
+// troca de versão de uma carta: refaz só as assinaturas dela
+let sigBusyCard = Promise.resolve();
+function buildSigsFor(x){
+  sigBusyCard = sigBusyCard.then(async () => {
+    for (const [k, v] of [...sigs]) if (k.startsWith(x.card.id + '|')) { del(v.desc); sigs.delete(k); }
+    if (sigState.busy) { buildSignatures(); return; }   // preparação geral em andamento: recomeça com a versão nova
+    try { await loadCV(); } catch { return; }
+    const arts = artsOf(x);
+    let ok = 0; for (const a of arts) if (await addSig(x, a)) ok++;
+    const ids = new Set(deckCards.map(d => d.card.id));
+    sigState.total = deckCards.reduce((n, d) => n + artsOf(d).length, 0);
+    sigState.done = [...sigs.values()].filter(v => ids.has(v.card.id)).length;
+    sigState.failed = Math.max(0, sigState.total - sigState.done);
+    updateSigUI();
+    if (!ok) toast(`Não consegui ler a imagem da versão escolhida de <b>${esc(x.card.title)}</b>.`, true);
+  }).catch(e => console.warn(e));
 }
 function updateSigUI(){
   const st = $('#sigStatus'), bar = $('#sigBar'); if (!st) return;
@@ -2062,9 +2267,10 @@ function updateSigUI(){
   if (bar) bar.style.width = total ? ((done + failed) / total * 100).toFixed(0) + '%' : '0';
   if (cvFail) st.innerHTML = 'Não foi possível carregar o módulo de visão (OpenCV). O reconhecimento pelo nome continua funcionando.';
   else if (busy) st.textContent = `Preparando o reconhecimento por imagem… ${done + failed}/${total}`;
-  else if (done) st.innerHTML = `<b style="color:var(--ok)">Reconhecimento por imagem ativo</b> para ${done} de ${total} cartas.${failed ? ` ${failed} imagem(ns) não puderam ser lidas${blocked ? ' (o servidor de imagens bloqueou a leitura)' : ''}.` : ''}`;
+  else if (done) { const nc = new Set([...sigs.values()].map(v => v.card.id)).size; st.innerHTML = `<b style="color:var(--ok)">Reconhecimento por imagem ativo</b> para ${nc} de ${deckCards.length} cartas${total > deckCards.length ? ` (${done} imagens, contando as versões extras)` : ''}.${failed ? ` ${failed} imagem(ns) não puderam ser lidas${blocked ? ' (o servidor de imagens bloqueou a leitura)' : ''}.` : ''}`; }
   else if (total) st.innerHTML = `As imagens das cartas não puderam ser analisadas${blocked ? ' (bloqueio do servidor de imagens)' : ''}. O reconhecimento pelo nome continua funcionando, priorizando as cartas do seu deck.`;
-  $$('[data-sig]').forEach(i => i.classList.toggle('on', sigs.has(+i.dataset.sig)));
+  const have = new Set([...sigs.values()].map(v => v.card.id));
+  $$('[data-sig]').forEach(i => i.classList.toggle('on', have.has(+i.dataset.sig)));
 }
 // Compara uma carta (idealmente já desentortada) com as assinaturas do deck
 // pontos que coincidem de verdade (inliers da homografia) entre a carta da câmera (q) e uma referência (s)
@@ -2097,7 +2303,12 @@ function matchDeck(canvas){
   const out = [];
   if (q.desc.rows < 10) { del(q.desc); return out; }
   const bf = new CV.BFMatcher(CV.NORM_HAMMING, false);
-  for (const [id, s] of sigs) out.push({ id, title:s.card.title, url:s.card.url, inliers:inliersOf(q, s, bf) });
+  const byCard = new Map();
+  for (const s of sigs.values()) {
+    const n = inliersOf(q, s, bf), o = byCard.get(s.card.id);
+    if (!o || n > o.inliers) byCard.set(s.card.id, { id:s.card.id, title:s.card.title, url:s.url || s.card.url, inliers:n });
+  }
+  out.push(...byCard.values());
   del(bf, q.desc);
   out.sort((a, b) => b.inliers - a.inliers);
   // cartas diferentes ainda "casam" um pouco pela moldura em comum; a certa se destaca muito das demais
@@ -2121,13 +2332,17 @@ async function verifyByImage(canvases, titles){
       let best = -1, pick = 0;
       // vampiros com o mesmo nome em grupos diferentes (e as versões avançadas) têm imagens diferentes
       const vs = g.cards.slice(0, isCrypt(g.cards[0]) ? 5 : 2);
+      let art = null;
       for (let i = 0; i < vs.length; i++) {
-        const s = await refSig(vs[i]); if (!s) continue;
-        if (best < 0) best = 0;
-        for (const q of qs) { const n = inliersOf(q, s, bf); if (n > best) { best = n; pick = i; } }
+        const own = sigsOf(vs[i].id);   // carta do meu deck: as versões que escolhi
+        const list = own.length ? own : [await refSig(vs[i])].filter(Boolean);
+        for (const s of list) {
+          if (best < 0) best = 0;
+          for (const q of qs) { const n = inliersOf(q, s, bf); if (n > best) { best = n; pick = i; art = s.url || null; } }
+        }
         if (best >= 30) break;
       }
-      out.push({ title:g.title, inliers:best, card:vs[pick], pick, cards:g.cards });
+      out.push({ title:g.title, inliers:best, card:vs[pick], pick, cards:g.cards, art });
     }
   } finally { del(bf); qs.forEach(q => del(q.desc)); }
   return out.sort((a, b) => b.inliers - a.inliers);
@@ -2366,7 +2581,8 @@ async function identify(video, id, q, owner, wrap){
     const hitList = [];
     for (const h of r.hits || []) {
       const g = DB?.groups.get(norm(h.title));
-      hitList.push({ title:h.title, url:h.url, cards:g?.cards || null, score:0.5 + 0.5 * h.conf, via:['imagem'] });
+      const pick = Math.max(0, g?.cards.findIndex(c => c.id === h.id) ?? 0);
+      hitList.push({ title:h.title, url:h.url, art:h.url, pick, cards:g?.cards || null, score:0.5 + 0.5 * h.conf, via:['imagem'] });
     }
     merge(hitList);
     let strong = hitList[0] && hitList[0].score >= 0.9 && (!hitList[1] || hitList[1].score < hitList[0].score * 0.8);
@@ -2391,8 +2607,8 @@ async function identify(video, id, q, owner, wrap){
         const o = found.get(x.title);
         if (ok && x === top) {
           const sc = 0.6 + 0.4 * Math.min(1, (top.inliers - second) / 30);
-          if (o) { o.score = Math.max(o.score ?? 0, sc); o.via = [...new Set(['imagem', ...o.via])]; o.url = x.card.url; o.cards = x.cards; o.pick = x.pick; }
-          else found.set(x.title, { title:x.title, score:sc, cards:x.cards, pick:x.pick, url:x.card.url, via:['imagem'] });
+          if (o) { o.score = Math.max(o.score ?? 0, sc); o.via = [...new Set(['imagem', ...o.via])]; o.url = x.art || x.card.url; o.art = x.art; o.cards = x.cards; o.pick = x.pick; }
+          else found.set(x.title, { title:x.title, score:sc, cards:x.cards, pick:x.pick, url:x.art || x.card.url, art:x.art, via:['imagem'] });
         } else if (o && o.score != null && x.inliers < 12) o.score *= 0.55;   // a imagem não bate: rebaixa a leitura do texto
       }
       return ok;
@@ -2471,7 +2687,7 @@ function showCandidates(res, owner){
   const via = v => (v || []).map(t => `<span class="chip ${t === 'imagem' ? 'gold' : ''}" style="font-size:.68rem">${t}</span>`).join(' ');
   box.innerHTML = `<div class="muted" style="font-size:.8rem; font-family:var(--fh); letter-spacing:.12em">CANDIDATAS</div>` + res.map((x, i) =>
     `<button class="cand ${i === 0 ? 'on' : ''}" data-i="${i}">${x.url ? `<img src="${esc(x.url)}" alt="" loading="lazy">` : ''}<span>${esc(x.title)}<br>${via(x.via)}</span>${conf(x.score)}</button>`).join('');
-  const open = i => { $$('#cands .cand').forEach((b, j) => b.classList.toggle('on', j === i)); const x = res[i]; if (x.cards) showCard(x.cards, x.pick || 0); else openCardByName(x.title); };
+  const open = i => { $$('#cands .cand').forEach((b, j) => b.classList.toggle('on', j === i)); const x = res[i]; if (x.cards) { const c = x.cards[x.pick || 0]; showCard(x.cards, x.pick || 0, x.art && x.art !== c?.url ? x.art : null); } else openCardByName(x.title); };
   $$('#cands .cand').forEach(b => b.onclick = () => { open(+b.dataset.i); noteSeen(owner, res[+b.dataset.i].title); });   // escolha manual ensina a mesa
   open(0);
   // com o painel recolhido o resultado não aparece na lateral: mostra um aviso

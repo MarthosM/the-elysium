@@ -1,4 +1,4 @@
-# The Elysium — arquitetura (v2.7, set/2026)
+# The Elysium — arquitetura (v3.0, nov/2026)
 
 Nome da plataforma: **The Elysium**. Página única, sem servidor próprio.
 
@@ -20,6 +20,14 @@ Nome da plataforma: **The Elysium**. Página única, sem servidor próprio.
 ## Deck (aba "Deck")
 - Importação: **link do VDB**. O link "padrão", com as cartas no próprio endereço (`#100001=3;…`), é lido localmente; o link `vdb.im/decks/<id>` passa pela KRCG `POST /vdb`, com a API do VDB como alternativa. **Amaranth** via KRCG `POST /amaranth`. **Texto colado** (VDB/TWD/Lackey/"3x Nome"), lido localmente com o banco de cartas; sem o banco, usa KRCG `/convert/json`.
 - **Privacidade:** a lista fica só no navegador (localStorage). Os outros jogadores sabem apenas que existe um deck.
+
+## Versão (edição) das cartas do deck — v3.0
+- Cada carta do banco ganha `prints`: as edições com imagem própria, da mais antiga à mais recente (`printsOf`). Lê o formato antigo do arquivo da KRCG (`scans` + `sets`) e o novo (`prints[]` com `set.code` e `url`). Tabelas `SETS` (código → nome, data) e `BUNDLES` (decks pré-montados) vêm dos CSV da VEKN/KRCG.
+- Na lista do deck, cada carta mostra a miniatura da arte escolhida e uma etiqueta com o código da edição. Clicar na etiqueta abre a faixa com todas as artes (edição, ano, deck pré-montado); clicar numa arte escolhe essa. "Tenho mais de uma versão" permite marcar várias. "Voltar à padrão" usa a imagem padrão da KRCG (mais recente).
+- "Versão das cartas → Aplicar a todas": a mais recente, a mais antiga ou uma edição (só nas cartas que a têm).
+- Versão inicial: link de deck pré-montado do VDB (`vdb.im/decks/V5A:PB`, importado pela KRCG `POST /vdb`) usa a edição do deck; senão, a escolha anterior do jogador para aquela carta (`vtes.prints` no localStorage); senão, a padrão. A escolha fica em `myDeck.cards[i].prints` (nomes das edições).
+- Reconhecimento: uma assinatura ORB por edição escolhida (`sigs`: chave `id|edição`); a carta vale a melhor delas. Trocar a versão de uma carta refaz só as assinaturas dela. A carta revelada e o painel "Carta" mostram a arte escolhida (linha "Arte: edição · ano").
+- Imagem da edição: `static.krcg.org/card/set/<edição>/<carta>.jpg`, com o VDB (`/images/cards/set/<código>/`) como alternativa. Edição sem imagem some da faixa.
 
 ## Identificação de cartas
 1. Clique → janela ao redor do ponto (tamanho da carta aprendido automaticamente) ou retângulo arrastado.
